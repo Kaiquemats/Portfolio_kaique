@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cortessx2 — Loja de Serviços</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="shop-body">
+
+<!-- LANGUAGE MODAL -->
+<div class="lang-modal" id="langModal">
+    <div class="lang-modal-noise"></div>
+    <div class="lang-modal-box">
+        <div class="lang-modal-globe">🌍</div>
+        <h2 class="lang-modal-title">Choose your language</h2>
+        <p class="lang-modal-sub">Escolha · Select · Selecciona</p>
+        <div class="lang-modal-options">
+            <button class="lang-option-btn" data-lang="pt">
+                <span class="lang-opt-flag">🇧🇷</span>
+                <div class="lang-opt-text">
+                    <span class="lang-opt-name">Português</span>
+                    <span class="lang-opt-region">Brasil</span>
+                </div>
+                <span class="lang-opt-arrow">→</span>
+            </button>
+            <button class="lang-option-btn" data-lang="en">
+                <span class="lang-opt-flag">🇺🇸</span>
+                <div class="lang-opt-text">
+                    <span class="lang-opt-name">English</span>
+                    <span class="lang-opt-region">United States</span>
+                </div>
+                <span class="lang-opt-arrow">→</span>
+            </button>
+            <button class="lang-option-btn" data-lang="es">
+                <span class="lang-opt-flag">🇪🇸</span>
+                <div class="lang-opt-text">
+                    <span class="lang-opt-name">Español</span>
+                    <span class="lang-opt-region">España</span>
+                </div>
+                <span class="lang-opt-arrow">→</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="video-modal" id="videoModal">
+    <div class="video-modal-backdrop" id="videoBackdrop"></div>
+    <div class="video-modal-inner">
+        <div class="video-modal-header">
+            <span class="video-modal-name" id="videoModalName">Project</span>
+            <button class="video-modal-close" id="videoModalClose">✕</button>
+        </div>
+        <div class="video-wrap">
+            <video id="videoEl" controls playsinline>
+                <source id="videoSrc" src="" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-modal-actions">
+            <p class="video-modal-desc" id="videoModalDesc"></p>
+            <a class="btn-accent" href="https://br.fiverr.com/s/BRQAxvW" target="_blank">
+                <span data-i18n="vid.fiverr">Encomendar no Fiverr</span> →
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+    <div class="nav-inner">
+        <a href="index.html" class="nav-logo">
+            <span class="nav-logo-dot" style="background:#a78bfa"></span>
+            Cortessx2
+        </a>
+        <div class="nav-links" id="navLinks">
+            <a href="#all"     data-i18n="sn.all">Todos</a>
+            <a href="#roblox"  data-i18n="sn.roblox">Roblox</a>
+            <a href="#web"     data-i18n="sn.web">Web</a>
+            <a href="#video"   data-i18n="sn.video">Vídeo</a>
+            <a href="index.html" class="nav-store" data-i18n="sn.about">← Sobre mim</a>
+        </div>
+        <div class="nav-right">
+            <div class="lang-picker" id="langPicker">
+                <button class="lang-pick-btn" id="langPickBtn">
+                    <span id="langFlag">🌍</span>
+                    <span id="langCode">PT</span>
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                        <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <div class="lang-pick-drop" id="langPickDrop">
+                    <button data-lang="pt">🇧🇷 PT</button>
+                    <button data-lang="en">🇺🇸 EN</button>
+                    <button data-lang="es">🇪🇸 ES</button>
+                </div>
+            </div>
+            <button class="nav-hamburger" id="navHam">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- SHOP HERO -->
+<section class="shop-hero">
+    <div class="shop-hero-noise"></div>
+    <div class="shop-hero-glow"></div>
+    <div class="container">
+        <div class="sh-badge">
+            <span class="sh-badge-dot"></span>
+            <span data-i18n="sh.badge">Aceitando novos projetos</span>
+        </div>
+        <h1 class="sh-h1">
+            <span data-i18n="sh.h1a">Serviços &</span>
+            <span class="sh-name"> Cortessx2</span>
+        </h1>
+        <p class="sh-p" data-i18n="sh.p">
+            Escolha um serviço, veja a demo e encomende direto no Fiverr.
+        </p>
+        <div class="sh-filters" id="shFilters">
+            <button class="sh-filter active" data-filter="all" data-i18n="sf.all">Todos</button>
+            <button class="sh-filter" data-filter="roblox" data-i18n="sf.roblox">🎮 Roblox</button>
+            <button class="sh-filter" data-filter="web" data-i18n="sf.web">🌐 Web</button>
+            <button class="sh-filter" data-filter="video" data-i18n="sf.video">🎬 Vídeo</button>
+            <button class="sh-filter" data-filter="soon" data-i18n="sf.soon">🔜 Em breve</button>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section class="shop-services" id="all">
+    <div class="container">
+
+        <!-- ROBLOX -->
+        <div class="svc-section" id="roblox">
+            <div class="svc-section-title">
+                <span>🎮</span>
+                <h2 data-i18n="sc.roblox">Roblox</h2>
+                <div class="svc-line"></div>
+            </div>
+            <div class="svc-grid">
+
+                <div class="svc-card svc-featured" data-category="roblox">
+                    <div class="svc-badge-feat" data-i18n="sb.feat">⭐ Destaque</div>
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364)">
+                        <span>⚔️</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.rpg.t">Sistema RPG Completo</h3>
+                        <p data-i18n="sv.rpg.d">Inventário estilo livro, shop com NPC, stats, gamepass, diálogo com typewriter e menu principal.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.rpg.1">✓ Inventário Moonlighter-style</li>
+                            <li data-i18n="sv.rpg.2">✓ Shop com NPC ao vivo</li>
+                            <li data-i18n="sv.rpg.3">✓ DataStore + anti-exploit</li>
+                            <li data-i18n="sv.rpg.4">✓ Menu + gamepasses</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$100</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <button class="svc-btn-demo proj-btn-video"
+                                    data-video="fkl4i080Jdo"
+                                    data-title="Moonveil RPG System"
+                                    data-desc="Sistema RPG completo.">
+                                    ▶ Demo
+                                </button>
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order gold" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="svc-card" data-category="roblox">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#0a0a14,#1a0a28)">
+                        <span>🎯</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.show.t">Pack 15 Mini Sistemas</h3>
+                        <p data-i18n="sv.show.d">Lockpick, Fishing, Gacha, Crafting, Quest, Bank, Cutscene, Minimap e mais — todos com UI profissional.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.show.1">✓ 15 sistemas prontos</li>
+                            <li data-i18n="sv.show.2">✓ Tema visual consistente</li>
+                            <li data-i18n="sv.show.3">✓ Notificações animadas</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$80</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <button class="svc-btn-demo proj-btn-video"
+                                    data-video="IuCzuV90lN4"
+                                    data-title="Pack 15 Mini Sistemas"
+                                    data-desc="15 sistemas com UI profissional.">
+                                    ▶ Demo
+                                </button>
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="svc-card" data-category="roblox">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#0a1a00,#1a3300)">
+                        <span>⚙️</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.scripts.t">Scripts Roblox</h3>
+                        <p data-i18n="sv.scripts.d">Qualquer sistema: inventário, shop, tycoon, RPG, admin panel, UI e muito mais.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.scripts.1">✓ DataStore saving</li>
+                            <li data-i18n="sv.scripts.2">✓ Anti-exploit servidor</li>
+                            <li data-i18n="sv.scripts.3">✓ Código limpo</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$20</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="svc-card" data-category="roblox">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#0d2800,#1a4500)">
+                        <span>🏗️</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.build.t">Build Mode</h3>
+                        <p data-i18n="sv.build.d">Sistema de construção estilo The Sims com câmera top-down, snap grid e catálogo de itens.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.build.1">✓ Câmera top-down</li>
+                            <li data-i18n="sv.build.2">✓ Snap to grid</li>
+                            <li data-i18n="sv.build.3">✓ Rotação de itens</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$35</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <button class="svc-btn-demo proj-btn-video"
+                                    data-video="b-Z2klBm7sM"
+                                    data-title="Build Mode"
+                                    data-desc="Sistema de construção top-down.">
+                                    ▶ Demo
+                                </button>
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="svc-card" data-category="roblox">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#1a1000,#332000)">
+                        <span>🏭</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.tycoon.t">Tycoon Game</h3>
+                        <p data-i18n="sv.tycoon.d">Dropper tycoon, fast food ou qualquer tema — completo com upgrades e DataStore.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.tycoon.1">✓ Droppers automáticos</li>
+                            <li data-i18n="sv.tycoon.2">✓ Upgrades e multipliers</li>
+                            <li data-i18n="sv.tycoon.3">✓ DataStore saving</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$40</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="svc-card" data-category="roblox">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#00101a,#001f36)">
+                        <span>🛡️</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.admin.t">Admin Panel</h3>
+                        <p data-i18n="sv.admin.d">Painel completo com kick, ban, give items, teleport, permissões e logs.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.admin.1">✓ Sistema de ranks</li>
+                            <li data-i18n="sv.admin.2">✓ Logs de ações</li>
+                            <li data-i18n="sv.admin.3">✓ Interface bonita</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$25</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- WEB -->
+        <div class="svc-section" id="web">
+            <div class="svc-section-title">
+                <span>🌐</span>
+                <h2 data-i18n="sc.web">Web</h2>
+                <div class="svc-line"></div>
+            </div>
+            <div class="svc-grid">
+
+                <div class="svc-card" data-category="web">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#050510,#0a0a28)">
+                        <span>🌐</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.web.t">Site Profissional</h3>
+                        <p data-i18n="sv.web.d">Sites modernos com HTML, CSS e JS. Responsivo e com animações profissionais.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.web.1">✓ Design personalizado</li>
+                            <li data-i18n="sv.web.2">✓ Mobile responsive</li>
+                            <li data-i18n="sv.web.3">✓ Código limpo</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$30</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="svc-card" data-category="web">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#100520,#200a3d)">
+                        <span>📊</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.port.t">Site Portfólio</h3>
+                        <p data-i18n="sv.port.d">Portfólio profissional com loja integrada, multi-idioma e links Fiverr.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.port.1">✓ Página sobre + loja</li>
+                            <li data-i18n="sv.port.2">✓ Multi-idioma</li>
+                            <li data-i18n="sv.port.3">✓ SEO básico</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$40</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VIDEO -->
+        <div class="svc-section" id="video">
+            <div class="svc-section-title">
+                <span>🎬</span>
+                <h2 data-i18n="sc.video">Vídeo</h2>
+                <div class="svc-line"></div>
+            </div>
+            <div class="svc-grid">
+
+                <div class="svc-card" data-category="video">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#1a0000,#3d0a0a)">
+                        <span>🎬</span>
+                        <span class="svc-avail-dot"></span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.vid.t">Edição de Vídeo</h3>
+                        <p data-i18n="sv.vid.d">Edição profissional para YouTube, portfólio e apresentações.</p>
+                        <ul class="svc-list">
+                            <li data-i18n="sv.vid.1">✓ Cortes dinâmicos</li>
+                            <li data-i18n="sv.vid.2">✓ Efeitos e transições</li>
+                            <li data-i18n="sv.vid.3">✓ Export HD</li>
+                        </ul>
+                        <div class="svc-footer">
+                            <div class="svc-price">
+                                <small data-i18n="from">A partir de</small>
+                                <strong>$15</strong>
+                            </div>
+                            <div class="svc-btns">
+                                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="svc-btn-order" data-i18n="btn.order">Encomendar →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SOON -->
+        <div class="svc-section">
+            <div class="svc-section-title">
+                <span>🔜</span>
+                <h2 data-i18n="sc.soon">Em breve</h2>
+                <div class="svc-line"></div>
+            </div>
+            <div class="svc-grid">
+
+                <div class="svc-card svc-soon" data-category="soon">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#0a0a0a,#111)">
+                        <span>🏗️</span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.model.t">Modelagem 3D</h3>
+                        <p data-i18n="sv.model.d">Modelos 3D para Roblox e jogos — em breve.</p>
+                        <div class="svc-soon-badge" data-i18n="sb.soon">🔜 Em breve</div>
+                    </div>
+                </div>
+
+                <div class="svc-card svc-soon" data-category="soon">
+                    <div class="svc-visual" style="background:linear-gradient(135deg,#0a0a0a,#111)">
+                        <span>🎭</span>
+                    </div>
+                    <div class="svc-body">
+                        <h3 data-i18n="sv.anim.t">Animações</h3>
+                        <p data-i18n="sv.anim.d">Animações para personagens e objetos — em breve.</p>
+                        <div class="svc-soon-badge" data-i18n="sb.soon">🔜 Em breve</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <span class="nav-logo-dot" style="background:#a78bfa"></span>
+                Cortessx2
+            </div>
+            <div class="footer-links">
+                <a href="index.html" data-i18n="foot.about">Sobre mim</a>
+                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank">Fiverr</a>
+            </div>
+            <span class="footer-cr">© 2025 Cortessx2</span>
+        </div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

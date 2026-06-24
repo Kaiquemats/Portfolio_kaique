@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaique — Roblox Engineer & Developer</title>
+    <meta name="description" content="Roblox Engineer especializado em sistemas complexos, UI e arquitetura escalável.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============================================================
+     LANGUAGE MODAL (first visit)
+============================================================ -->
+<div class="lang-modal" id="langModal">
+    <div class="lang-modal-noise"></div>
+    <div class="lang-modal-box">
+        <div class="lang-modal-globe">🌍</div>
+        <h2 class="lang-modal-title">Choose your language</h2>
+        <p class="lang-modal-sub">Escolha · Select · Selecciona</p>
+        <div class="lang-modal-options">
+            <button class="lang-option-btn" data-lang="pt">
+                <span class="lang-opt-flag">🇧🇷</span>
+                <div class="lang-opt-text">
+                    <span class="lang-opt-name">Português</span>
+                    <span class="lang-opt-region">Brasil</span>
+                </div>
+                <span class="lang-opt-arrow">→</span>
+            </button>
+            <button class="lang-option-btn" data-lang="en">
+                <span class="lang-opt-flag">🇺🇸</span>
+                <div class="lang-opt-text">
+                    <span class="lang-opt-name">English</span>
+                    <span class="lang-opt-region">United States</span>
+                </div>
+                <span class="lang-opt-arrow">→</span>
+            </button>
+            <button class="lang-option-btn" data-lang="es">
+                <span class="lang-opt-flag">🇪🇸</span>
+                <div class="lang-opt-text">
+                    <span class="lang-opt-name">Español</span>
+                    <span class="lang-opt-region">España</span>
+                </div>
+                <span class="lang-opt-arrow">→</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     VIDEO MODAL
+============================================================ -->
+<div class="video-modal" id="videoModal">
+    <div class="video-modal-backdrop" id="videoBackdrop"></div>
+    <div class="video-modal-inner">
+        <div class="video-modal-header">
+            <span class="video-modal-name" id="videoModalName">Project</span>
+            <button class="video-modal-close" id="videoModalClose">✕</button>
+        </div>
+        <div class="video-wrap">
+            <video id="videoEl" controls playsinline>
+                <source id="videoSrc" src="" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-modal-actions">
+            <p class="video-modal-desc" id="videoModalDesc"></p>
+            <a class="btn-accent" href="https://br.fiverr.com/s/BRQAxvW" target="_blank" id="videoFiverrBtn">
+                <span data-i18n="vid.fiverr">Encomendar no Fiverr</span> →
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav class="nav" id="nav">
+    <div class="nav-inner">
+        <a href="#" class="nav-logo">
+            <span class="nav-logo-dot"></span>
+            Kaique
+        </a>
+
+        <div class="nav-links" id="navLinks">
+            <a href="#about"    data-i18n="nav.about">Sobre</a>
+            <a href="#skills"   data-i18n="nav.skills">Skills</a>
+            <a href="#projects" data-i18n="nav.projects">Projetos</a>
+            <a href="#freelance" data-i18n="nav.freelance">Freelance</a>
+            <a href="#contact"  data-i18n="nav.contact">Contato</a>
+            <a href="shop.html" class="nav-store" data-i18n="nav.store">Loja →</a>
+        </div>
+
+        <div class="nav-right">
+            <div class="lang-picker" id="langPicker">
+                <button class="lang-pick-btn" id="langPickBtn">
+                    <span id="langFlag">🌍</span>
+                    <span id="langCode">PT</span>
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                        <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <div class="lang-pick-drop" id="langPickDrop">
+                    <button data-lang="pt">🇧🇷 PT</button>
+                    <button data-lang="en">🇺🇸 EN</button>
+                    <button data-lang="es">🇪🇸 ES</button>
+                </div>
+            </div>
+            <button class="nav-hamburger" id="navHam">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="home">
+    <div class="hero-noise"></div>
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+
+    <div class="hero-inner">
+        <div class="hero-badge" data-i18n="hero.badge">
+            <span class="hero-badge-dot"></span>
+            Disponível para projetos
+        </div>
+
+        <h1 class="hero-h1">
+            <span class="hero-line-1" data-i18n="hero.h1a">Roblox Engineer</span>
+            <span class="hero-line-2">
+                <span class="hero-amp">&</span>
+                <span data-i18n="hero.h1b">Developer</span>
+            </span>
+        </h1>
+
+        <p class="hero-sub" data-i18n="hero.sub">
+            Construo sistemas complexos, interfaces profissionais e jogos 
+            completos — com código limpo, escalável e que funciona.
+        </p>
+
+        <div class="hero-actions">
+            <a href="#projects" class="btn-accent" data-i18n="hero.cta1">Ver Projetos</a>
+            <a href="#contact"  class="btn-outline" data-i18n="hero.cta2">Entrar em Contato</a>
+        </div>
+
+        <div class="hero-chips">
+            <span>Luau</span>
+            <span>Roblox Studio</span>
+            <span>HTML/CSS/JS</span>
+            <span>DataStore</span>
+            <span>UI/UX</span>
+        </div>
+    </div>
+
+    <div class="hero-scroll-hint">
+        <span data-i18n="hero.scroll">scroll</span>
+        <div class="hero-scroll-line"></div>
+    </div>
+</section>
+
+<!-- ============================================================
+     ABOUT
+============================================================ -->
+<section class="about" id="about">
+    <div class="container">
+        <div class="about-inner">
+            <div class="about-left">
+                <div class="section-eyebrow" data-i18n="about.eyebrow">Sobre mim</div>
+                <h2 class="section-h2" data-i18n="about.h2">
+                    Desenvolvedor apaixonado<br>por código bem feito.
+                </h2>
+                <div class="about-text">
+                    <p data-i18n="about.p1">
+                        Comecei a programar no Roblox por curiosidade — queria entender 
+                        como os sistemas dos grandes jogos funcionavam por dentro. 
+                        O que era hobbie virou especialidade.
+                    </p>
+                    <p data-i18n="about.p2">
+                        Hoje crio desde sistemas RPG completos com inventário e shop, 
+                        até tycoons, admin panels e UIs com animações profissionais. 
+                        Cada projeto tem código organizado, anti-exploit no servidor e 
+                        DataStore funcionando.
+                    </p>
+                    <p data-i18n="about.p3">
+                        Atualmente também estudo modelagem 3D, animação para jogos 
+                        e desenvolvimento web — expandindo o que consigo entregar.
+                    </p>
+                </div>
+                <div class="about-facts">
+                    <div class="fact">
+                        <span class="fact-n">15+</span>
+                        <span class="fact-l" data-i18n="fact.systems">Sistemas construídos</span>
+                    </div>
+                    <div class="fact">
+                        <span class="fact-n">3+</span>
+                        <span class="fact-l" data-i18n="fact.games">Jogos completos</span>
+                    </div>
+                    <div class="fact">
+                        <span class="fact-n">100%</span>
+                        <span class="fact-l" data-i18n="fact.clean">Código limpo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-right">
+                <div class="about-avatar-wrap">
+                    <div class="about-avatar">👾</div>
+                    <div class="about-avatar-ring"></div>
+                </div>
+                <div class="about-status">
+                    <div class="status-dot"></div>
+                    <span data-i18n="about.status">Aberto para freelance e CLT</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SKILLS
+============================================================ -->
+<section class="skills" id="skills">
+    <div class="container">
+        <div class="section-eyebrow" data-i18n="skills.eyebrow">Tecnologias</div>
+        <h2 class="section-h2" data-i18n="skills.h2">Skills & Stack</h2>
+        <p class="section-p" data-i18n="skills.p">
+            Ferramentas e linguagens que uso no dia a dia.
+        </p>
+
+        <div class="skills-categories">
+
+            <div class="skill-cat">
+                <h3 class="skill-cat-title" data-i18n="sk.roblox.cat">Roblox & Luau</h3>
+                <div class="skill-list">
+                    <div class="skill-item">
+                        <span class="skill-icon">⚙️</span>
+                        <div class="skill-info">
+                            <span class="skill-name">Luau Scripting</span>
+                            <span class="skill-desc" data-i18n="sk.luau">Scripts, RemoteEvents, OOP</span>
+                        </div>
+                        <span class="skill-level-badge expert" data-i18n="lv.expert">Expert</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-icon">🎨</span>
+                        <div class="skill-info">
+                            <span class="skill-name">UI / ScreenGui</span>
+                            <span class="skill-desc" data-i18n="sk.ui">TweenService, Animações</span>
+                        </div>
+                        <span class="skill-level-badge expert" data-i18n="lv.expert">Expert</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-icon">💾</span>
+                        <div class="skill-info">
+                            <span class="skill-name">DataStore</span>
+                            <span class="skill-desc" data-i18n="sk.ds">Saving, Loading, Migrations</span>
+                        </div>
+                        <span class="skill-level-badge advanced" data-i18n="lv.adv">Avançado</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-icon">🛡️</span>
+                        <div class="skill-info">
+                            <span class="skill-name">Anti-Exploit</span>
+                            <span class="skill-desc" data-i18n="sk.anti">Validação server-side</span>
+                        </div>
+                        <span class="skill-level-badge advanced" data-i18n="lv.adv">Avançado</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-icon">🎮</span>
+                        <div class="skill-info">
+                            <span class="skill-name">Game Systems</span>
+                            <span class="skill-desc" data-i18n="sk.gs">RPG, Tycoon, Simulators</span>
+                        </div>
+                        <span class="skill-level-badge expert" data-i18n="lv.expert">Expert</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skill-cat">
+                <h3 class="skill-cat-title" data-i18n="sk.web.cat">Web & Outros</h3>
+                <div class="skill-list">
+                    <div class="skill-item">
+                        <span class="skill-icon">🌐</span>
+                        <div class="skill-info">
+                            <span class="skill-name">HTML / CSS</span>
+                            <span class="skill-desc" data-i18n="sk.html">Responsive, Animations</span>
+                        </div>
+                        <span class="skill-level-badge advanced" data-i18n="lv.adv">Avançado</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-icon">⚡</span>
+                        <div class="skill-info">
+                            <span class="skill-name">JavaScript</span>
+                            <span class="skill-desc" data-i18n="sk.js">DOM, Fetch, Animations</span>
+                        </div>
+                        <span class="skill-level-badge mid" data-i18n="lv.mid">Intermediário</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-icon">🤖</span>
+                        <div class="skill-info">
+                            <span class="skill-name">Automação</span>
+                            <span class="skill-desc" data-i18n="sk.auto">Scripts, Bots</span>
+                        </div>
+                        <span class="skill-level-badge mid" data-i18n="lv.mid">Intermediário</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-icon">🎬</span>
+                        <div class="skill-info">
+                            <span class="skill-name">Edição de Vídeo</span>
+                            <span class="skill-desc" data-i18n="sk.vid">CapCut, DaVinci</span>
+                        </div>
+                        <span class="skill-level-badge mid" data-i18n="lv.mid">Intermediário</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skill-cat">
+                <h3 class="skill-cat-title" data-i18n="sk.learn.cat">Aprendendo</h3>
+                <div class="skill-list">
+                    <div class="skill-item learning-item">
+                        <span class="skill-icon">🏗️</span>
+                        <div class="skill-info">
+                            <span class="skill-name">Modelagem 3D</span>
+                            <span class="skill-desc" data-i18n="sk.model">Blender, Roblox Studio</span>
+                        </div>
+                        <span class="skill-level-badge learning" data-i18n="lv.learn">Aprendendo</span>
+                    </div>
+                    <div class="skill-item learning-item">
+                        <span class="skill-icon">🎭</span>
+                        <div class="skill-info">
+                            <span class="skill-name">Animação</span>
+                            <span class="skill-desc" data-i18n="sk.anim">Rigs, Keyframes</span>
+                        </div>
+                        <span class="skill-level-badge learning" data-i18n="lv.learn">Aprendendo</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     PROJECTS
+============================================================ -->
+<section class="projects" id="projects">
+    <div class="container">
+        <div class="section-eyebrow" data-i18n="proj.eyebrow">Portfólio</div>
+        <h2 class="section-h2" data-i18n="proj.h2">Projetos em Destaque</h2>
+        <p class="section-p" data-i18n="proj.p">
+            Cada projeto tem decisões técnicas reais. 
+            <a href="shop.html" data-i18n="proj.all">Ver todos na loja →</a>
+        </p>
+
+        <div class="projects-grid">
+
+            <!-- Moonveil RPG — FEATURED -->
+            <div class="proj-card proj-featured">
+                <div class="proj-card-visual">
+                    <div class="proj-card-emoji">⚔️</div>
+                    <div class="proj-card-tag" data-i18n="proj.featured">Destaque</div>
+                </div>
+                <div class="proj-card-body">
+                    <div class="proj-meta">
+                        <span class="proj-cat">Roblox</span>
+                        <span class="proj-tech-pill">Luau</span>
+                        <span class="proj-tech-pill">DataStore</span>
+                        <span class="proj-tech-pill">UI</span>
+                    </div>
+                    <h3 data-i18n="p.rpg.title">Moonveil — Sistema RPG Completo</h3>
+                    <p data-i18n="p.rpg.desc">
+                        Sistema RPG modular com inventário estilo livro (inspirado no Moonlighter), 
+                        shop com NPC ao vivo via ViewportFrame, stats com equipment bonuses, 
+                        gamepass integration, diálogo com typewriter e menu principal completo.
+                    </p>
+                    <div class="proj-challenge">
+                        <span class="proj-challenge-label" data-i18n="proj.challenge">Desafio técnico:</span>
+                        <span data-i18n="p.rpg.challenge">
+                            Sincronizar ViewportFrame com R15 NPC, validação server-side em todos os remotes
+                            e DataStore com merge inteligente para não perder dados do jogador.
+                        </span>
+                    </div>
+                    <div class="proj-actions">
+                        <button class="proj-btn-video"
+                            data-video="fkl4i080Jdo"
+                            data-title="Moonveil RPG System"
+                            data-desc="Sistema RPG completo construído do zero."
+                            data-i18n="proj.watch">
+                            ▶ Ver Demo
+                        </button>
+                        <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="proj-btn-fiverr" data-i18n="proj.order">
+                            Encomendar →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Showcase 15 -->
+            <div class="proj-card">
+                <div class="proj-card-visual" style="background: linear-gradient(135deg,#0a0a14,#1a0a28)">
+                    <div class="proj-card-emoji">🎯</div>
+                </div>
+                <div class="proj-card-body">
+                    <div class="proj-meta">
+                        <span class="proj-cat">Roblox</span>
+                        <span class="proj-tech-pill">15 sistemas</span>
+                    </div>
+                    <h3 data-i18n="p.show.title">Pack 15 Mini Sistemas</h3>
+                    <p data-i18n="p.show.desc">
+                        Lockpick, Fishing, Gacha estilo Tower Defense, Crafting, 
+                        Quest System, Bank Deposit, Cutscene, Minimap e mais — 
+                        todos com UI profissional e tema visual consistente.
+                    </p>
+                    <div class="proj-actions">
+                        <button class="proj-btn-video"
+                            data-video="IuCzuV90lN4"
+                            data-title="Pack 15 Mini Sistemas"
+                            data-desc="15 sistemas prontos com UI profissional."
+                            data-i18n="proj.watch">
+                            ▶ Ver Demo
+                        </button>
+                        <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="proj-btn-fiverr" data-i18n="proj.order">
+                            Encomendar →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Build Mode -->
+            <div class="proj-card">
+                <div class="proj-card-visual" style="background: linear-gradient(135deg,#0a1a0a,#0d2b0d)">
+                    <div class="proj-card-emoji">🏗️</div>
+                </div>
+                <div class="proj-card-body">
+                    <div class="proj-meta">
+                        <span class="proj-cat">Roblox</span>
+                        <span class="proj-tech-pill">Raycast</span>
+                        <span class="proj-tech-pill">Camera</span>
+                    </div>
+                    <h3 data-i18n="p.build.title">Build Mode</h3>
+                    <p data-i18n="p.build.desc">
+                        Sistema de construção estilo The Sims com câmera top-down, 
+                        snap to grid, ghost preview, rotação e catálogo de itens 
+                        organizado por categorias.
+                    </p>
+                    <div class="proj-actions">
+                        <button class="proj-btn-video"
+                            data-video="b-Z2klBm7sM"
+                            data-title="Build Mode"
+                            data-desc="Sistema de construção com câmera top-down."
+                            data-i18n="proj.watch">
+                            ▶ Ver Demo
+                        </button>
+                        <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="proj-btn-fiverr" data-i18n="proj.order">
+                            Encomendar →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Este site -->
+            <div class="proj-card">
+                <div class="proj-card-visual" style="background: linear-gradient(135deg,#0a0a1a,#0d1a3d)">
+                    <div class="proj-card-emoji">🌐</div>
+                </div>
+                <div class="proj-card-body">
+                    <div class="proj-meta">
+                        <span class="proj-cat">Web</span>
+                        <span class="proj-tech-pill">HTML</span>
+                        <span class="proj-tech-pill">CSS</span>
+                        <span class="proj-tech-pill">JS</span>
+                    </div>
+                    <h3 data-i18n="p.site.title">Este Portfólio</h3>
+                    <p data-i18n="p.site.desc">
+                        Portfólio bilíngue com sistema de tradução próprio, 
+                        loja integrada com filtros por categoria, 
+                        modais de vídeo e design responsivo.
+                    </p>
+                    <div class="proj-actions">
+                        <span class="proj-btn-here" data-i18n="p.site.here">Você está aqui</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     FREELANCE SECTION
+============================================================ -->
+<section class="freelance" id="freelance">
+    <div class="freelance-noise"></div>
+    <div class="container">
+        <div class="freelance-header">
+            <div class="section-eyebrow" data-i18n="fl.eyebrow">Freelance Roblox</div>
+            <h2 class="section-h2" data-i18n="fl.h2">
+                Open for Select Projects
+            </h2>
+            <p class="section-p" data-i18n="fl.p">
+                Especializado em sistemas complexos, UI de alto nível e arquitetura escalável.
+                Aceito projetos pontuais e contratos de longo prazo.
+            </p>
+        </div>
+
+        <div class="fl-services">
+            <div class="fl-service">
+                <div class="fl-service-icon">🎮</div>
+                <h4 data-i18n="fl.s1.title">Advanced Game Systems</h4>
+                <p data-i18n="fl.s1.desc">Inventory, Combat, Tycoon, Quests, RPG completo</p>
+            </div>
+            <div class="fl-service">
+                <div class="fl-service-icon">🎨</div>
+                <h4 data-i18n="fl.s2.title">Custom UI / UX</h4>
+                <p data-i18n="fl.s2.desc">Interfaces com animações, ViewportFrame, tema customizado</p>
+            </div>
+            <div class="fl-service">
+                <div class="fl-service-icon">🛡️</div>
+                <h4 data-i18n="fl.s3.title">Admin Panels & Tools</h4>
+                <p data-i18n="fl.s3.desc">Kick, ban, give items, permissões, logs completos</p>
+            </div>
+            <div class="fl-service">
+                <div class="fl-service-icon">💾</div>
+                <h4 data-i18n="fl.s4.title">Data Architecture</h4>
+                <p data-i18n="fl.s4.desc">DataStore robusto com retry, merge e saving seguro</p>
+            </div>
+            <div class="fl-service">
+                <div class="fl-service-icon">🏭</div>
+                <h4 data-i18n="fl.s5.title">Full Game Development</h4>
+                <p data-i18n="fl.s5.desc">Do zero ao publicado, incluindo scripting e UI</p>
+            </div>
+            <div class="fl-service">
+                <div class="fl-service-icon">🔧</div>
+                <h4 data-i18n="fl.s6.title">Bug Fix & Optimization</h4>
+                <p data-i18n="fl.s6.desc">Diagnóstico, correção e otimização de código existente</p>
+            </div>
+        </div>
+
+        <div class="fl-process">
+            <h3 data-i18n="fl.process.title">Como trabalho</h3>
+            <div class="fl-steps">
+                <div class="fl-step">
+                    <div class="fl-step-num">01</div>
+                    <h4 data-i18n="fl.step1.title">Briefing</h4>
+                    <p data-i18n="fl.step1.desc">Entendo o que você precisa, o escopo e o prazo.</p>
+                </div>
+                <div class="fl-step-arrow">→</div>
+                <div class="fl-step">
+                    <div class="fl-step-num">02</div>
+                    <h4 data-i18n="fl.step2.title">Proposta</h4>
+                    <p data-i18n="fl.step2.desc">Envio prazo, preço e o que será entregue.</p>
+                </div>
+                <div class="fl-step-arrow">→</div>
+                <div class="fl-step">
+                    <div class="fl-step-num">03</div>
+                    <h4 data-i18n="fl.step3.title">Desenvolvimento</h4>
+                    <p data-i18n="fl.step3.desc">Codifico com updates e testando cada etapa.</p>
+                </div>
+                <div class="fl-step-arrow">→</div>
+                <div class="fl-step">
+                    <div class="fl-step-num">04</div>
+                    <h4 data-i18n="fl.step4.title">Entrega</h4>
+                    <p data-i18n="fl.step4.desc">Entrego com instruções e suporte pós-entrega.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="fl-cta">
+            <h3 data-i18n="fl.cta.title">Vamos trabalhar juntos?</h3>
+            <p data-i18n="fl.cta.desc">Entre em contato pelo Fiverr. Respondo em menos de 1 hora.</p>
+            <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="btn-accent-lg" data-i18n="fl.cta.btn">
+                Ver perfil no Fiverr →
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     CONTACT
+============================================================ -->
+<section class="contact" id="contact">
+    <div class="container">
+        <div class="contact-inner">
+            <div class="contact-left">
+                <div class="section-eyebrow" data-i18n="ct.eyebrow">Contato</div>
+                <h2 class="section-h2" data-i18n="ct.h2">
+                    Tem um projeto<br>em mente?
+                </h2>
+                <p data-i18n="ct.p">
+                    Estou aberto para freelance, CLT/PJ remoto e projetos pontuais.
+                    Me chama no Fiverr — respondo rápido.
+                </p>
+                <div class="ct-availability">
+                    <div class="ct-avail-dot"></div>
+                    <span data-i18n="ct.avail">Disponível para novos projetos</span>
+                </div>
+                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank" class="btn-accent" data-i18n="ct.btn">
+                    💼 Falar no Fiverr
+                </a>
+            </div>
+            <div class="contact-right">
+                <div class="ct-cards">
+                    <div class="ct-card">
+                        <span class="ct-card-icon">🎮</span>
+                        <div>
+                            <strong data-i18n="ct.c1">Scripts Roblox</strong>
+                            <span data-i18n="ct.c1p">A partir de $20</span>
+                        </div>
+                    </div>
+                    <div class="ct-card">
+                        <span class="ct-card-icon">📦</span>
+                        <div>
+                            <strong data-i18n="ct.c2">Sistema Completo</strong>
+                            <span data-i18n="ct.c2p">A partir de $80</span>
+                        </div>
+                    </div>
+                    <div class="ct-card">
+                        <span class="ct-card-icon">🌐</span>
+                        <div>
+                            <strong data-i18n="ct.c3">Site / Portfólio</strong>
+                            <span data-i18n="ct.c3p">A partir de $30</span>
+                        </div>
+                    </div>
+                    <div class="ct-card">
+                        <span class="ct-card-icon">🔧</span>
+                        <div>
+                            <strong data-i18n="ct.c4">Bug Fix</strong>
+                            <span data-i18n="ct.c4p">A partir de $15</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <span class="nav-logo-dot"></span>
+                Kaique
+            </div>
+            <div class="footer-links">
+                <a href="shop.html" data-i18n="foot.store">Loja</a>
+                <a href="https://br.fiverr.com/s/BRQAxvW" target="_blank">Fiverr</a>
+                <a href="#home" data-i18n="foot.top">Topo ↑</a>
+            </div>
+            <span class="footer-cr">© 2025 Kaique</span>
+        </div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
