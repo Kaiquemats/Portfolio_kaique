@@ -1663,180 +1663,62 @@ setTimeout(() => {
     updateIconState('home', true);
 }, 120);
 
-// ╔══════════════════════════════════════════╗
-// ║         SISTEMA DE ÁUDIO - FUUJI         ║
-// ║     Web Audio API (sem arquivos!)        ║
-// ╚══════════════════════════════════════════╝
+// ╔══════════════════════════════════════════════╗
+// ║      SISTEMA DE ÁUDIO - RESIDENT EVIL        ║
+// ║   som-abrir.mp3  = RE4 Treasure/Herb         ║
+// ║   som-fechar.mp3 = RE2 Inventário            ║
+// ╚══════════════════════════════════════════════╝
 
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let ctx = null;
-let masterVolume = 0.35;
 let audioEnabled = true;
+let masterVolume  = 0.5;
 
-// Inicia contexto apenas após interação do usuário
-function getCtx() {
-    if (!ctx) ctx = new AudioCtx();
-    if (ctx.state === 'suspended') ctx.resume();
-    return ctx;
-}
+// ── Carrega os arquivos ──────────────────────────
+const SFX = {
+    abrir:   new Audio('som-abrir.mp3'),   // RE4 Treasure / Herb
+    fechar:  new Audio('som-fechar.mp3'),  // RE2 Inventário
+    hover:   new Audio('som-fechar.mp3'), // reutiliza RE2 bem baixinho no hover
+};
 
-// ─────────────────────────────────────────────
-// FUNÇÕES BASE
-// ─────────────────────────────────────────────
-function playTone({ freq = 440, type = 'square', duration = 0.1,
-    volume = 0.2, delay = 0, attack = 0.005, decay = 0.05 } = {}) {
+// Pré-carrega tudo
+Object.values(SFX).forEach(a => {
+    a.preload = 'auto';
+    a.load();
+});
+
+// Volume individual
+SFX.abrir.volume  = 0.7;
+SFX.fechar.volume = 0.7;
+SFX.hover.volume  = 0.08; // bem suave no hover
+
+// ── Função de play (reinicia se já estiver tocando) ──
+function play(sfx) {
     if (!audioEnabled) return;
-    const c = getCtx();
-    const osc = c.createOscillator();
-    const gain = c.createGain();
-
-    osc.connect(gain);
-    gain.connect(c.destination);
-
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, c.currentTime + delay);
-
-    gain.gain.setValueAtTime(0, c.currentTime + delay);
-    gain.gain.linearRampToValueAtTime(volume * masterVolume,
-        c.currentTime + delay + attack);
-    gain.gain.exponentialRampToValueAtTime(0.0001,
-        c.currentTime + delay + duration + decay);
-
-    osc.start(c.currentTime + delay);
-    osc.stop(c.currentTime + delay + duration + decay + 0.05);
+    try {
+        const clone = sfx.cloneNode(); // permite tocar sobrepostos
+        clone.volume = sfx.volume * masterVolume;
+        clone.play().catch(() => {});   // ignora erro de autoplay
+    } catch(e) {}
 }
 
-function playNoise({ duration = 0.08, volume = 0.15, delay = 0 } = {}) {
-    if (!audioEnabled) return;
-    const c = getCtx();
-    const bufferSize = c.sampleRate * duration;
-    const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+// ── Sons específicos ─────────────────────────────
+function sfxOpenWindow()   { play(SFX.abrir);  }  // RE4 Herb ✨
+function sfxCloseWindow()  { play(SFX.fechar); }  // RE2 Inv 🎒
+function sfxHover()        { play(SFX.hover);  }  // RE2 suave
+function sfxClick()        { play(SFX.abrir);  }  // RE4 rápido
+function sfxTabSwitch()    { play(SFX.fechar); }  // troca aba
+function sfxFaqToggle(o)   { o ? play(SFX.abrir) : play(SFX.fechar); }
+function sfxThemeToggle()  { play(SFX.abrir);  }  // dia/noite
+function sfxDragStart()    { play(SFX.hover);  }  // arrastar
+function sfxStartMenu()    { play(SFX.abrir);  }  // menu
 
-    const source = c.createBufferSource();
-    const gain = c.createGain();
-    const filter = c.createBiquadFilter();
-
-    source.buffer = buffer;
-    filter.type = 'bandpass';
-    filter.frequency.value = 800;
-    filter.Q.value = 0.5;
-
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(c.destination);
-
-    gain.gain.setValueAtTime(volume * masterVolume, c.currentTime + delay);
-    gain.gain.exponentialRampToValueAtTime(0.0001,
-        c.currentTime + delay + duration);
-
-    source.start(c.currentTime + delay);
-    source.stop(c.currentTime + delay + duration + 0.05);
-}
-
-// ─────────────────────────────────────────────
-// SONS TEMÁTICOS
-// ─────────────────────────────────────────────
-
-// 🪟 Abrir janela — acorde ascendente (Persona 4 style)
-function sfxOpenWindow() {
-    const notes = [330, 440, 550, 660];
-    notes.forEach((freq, i) => {
-        playTone({ freq, type: 'square', duration: 0.06,
-            volume: 0.18, delay: i * 0.04, attack: 0.003, decay: 0.08 });
-    });
-    playNoise({ duration: 0.06, volume: 0.08, delay: 0 });
-}
-
-// ❌ Fechar janela — acorde descendente
-function sfxCloseWindow() {
-    const notes = [550, 440, 330, 220];
-    notes.forEach((freq, i) => {
-        playTone({ freq, type: 'square', duration: 0.05,
-            volume: 0.15, delay: i * 0.035, attack: 0.003, decay: 0.06 });
-    });
-}
-
-// 🖱️ Hover — bip suave (Zelda style)
-function sfxHover() {
-    playTone({ freq: 660, type: 'sine', duration: 0.04,
-        volume: 0.08, attack: 0.002, decay: 0.04 });
-}
-
-// 🖱️ Click simples — bip de seleção
-function sfxClick() {
-    playTone({ freq: 880, type: 'square', duration: 0.03,
-        volume: 0.14, attack: 0.001, decay: 0.05 });
-    playTone({ freq: 1100, type: 'square', duration: 0.03,
-        volume: 0.1, delay: 0.03, attack: 0.001, decay: 0.04 });
-}
-
-// 📁 Troca de aba projetos
-function sfxTabSwitch() {
-    playTone({ freq: 740, type: 'triangle', duration: 0.05,
-        volume: 0.12, attack: 0.002, decay: 0.05 });
-    playTone({ freq: 988, type: 'triangle', duration: 0.05,
-        volume: 0.1, delay: 0.05, attack: 0.002, decay: 0.05 });
-}
-
-// ❓ FAQ abrir/fechar
-function sfxFaqToggle(isOpening) {
-    if (isOpening) {
-        playTone({ freq: 523, type: 'sine', duration: 0.06,
-            volume: 0.12, attack: 0.003, decay: 0.07 });
-        playTone({ freq: 659, type: 'sine', duration: 0.06,
-            volume: 0.1, delay: 0.06, attack: 0.003, decay: 0.07 });
-    } else {
-        playTone({ freq: 659, type: 'sine', duration: 0.06,
-            volume: 0.1, attack: 0.003, decay: 0.07 });
-        playTone({ freq: 523, type: 'sine', duration: 0.06,
-            volume: 0.08, delay: 0.06, attack: 0.003, decay: 0.07 });
-    }
-}
-
-// 🌙 Trocar tema dia/noite — efeito mágico
-function sfxThemeToggle() {
-    const notes = [262, 330, 392, 523, 659, 784];
-    notes.forEach((freq, i) => {
-        playTone({ freq, type: 'sine', duration: 0.08,
-            volume: 0.14, delay: i * 0.045, attack: 0.003, decay: 0.1 });
-    });
-}
-
-// ⭐ Easter egg chibi — jingle especial
+// Easter egg: toca os dois juntos
 function sfxEasterEgg() {
-    const melody = [
-        {f:523,d:0.12},{f:659,d:0.12},{f:784,d:0.12},
-        {f:1047,d:0.2},{f:784,d:0.08},{f:1047,d:0.28}
-    ];
-    let t = 0;
-    melody.forEach(note => {
-        playTone({ freq: note.f, type: 'square', duration: note.d,
-            volume: 0.18, delay: t, attack: 0.005, decay: 0.08 });
-        t += note.d + 0.02;
-    });
-    playNoise({ duration: 0.4, volume: 0.06, delay: 0 });
+    play(SFX.abrir);
+    setTimeout(() => play(SFX.fechar), 400);
+    setTimeout(() => play(SFX.abrir),  800);
 }
 
-// 🖱️ Arrastar janela — som sutil
-function sfxDragStart() {
-    playNoise({ duration: 0.05, volume: 0.07 });
-}
-
-// ▲ Start menu
-function sfxStartMenu() {
-    playTone({ freq: 392, type: 'square', duration: 0.06,
-        volume: 0.15, attack: 0.003, decay: 0.06 });
-    playTone({ freq: 523, type: 'square', duration: 0.06,
-        volume: 0.14, delay: 0.06, attack: 0.003, decay: 0.06 });
-    playTone({ freq: 659, type: 'square', duration: 0.1,
-        volume: 0.16, delay: 0.12, attack: 0.003, decay: 0.09 });
-}
-
-// ─────────────────────────────────────────────
-// CONTROLE DE VOLUME / MUTE
-// ─────────────────────────────────────────────
+// ── Toggle mute / volume ─────────────────────────
 function toggleAudio() {
     audioEnabled = !audioEnabled;
     const btn = document.getElementById('audioToggleBtn');
@@ -1847,141 +1729,105 @@ function setVolume(val) {
     masterVolume = parseFloat(val);
 }
 
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────
 // APLICAR NOS ELEMENTOS
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- HOVER em tudo interativo ---
-    const hoverTargets = [
-        '.desktop-icon', '.home-nav-item', '.proj-tab',
-        '.link-item', '.skill-tag', '.project-card',
-        '.faq-question', '.contact-method', '.taskbar-item',
-        '.taskbar-social a', '.window-controls button'
+    // Hover suave
+    const hoverSels = [
+        '.desktop-icon','.home-nav-item','.proj-tab',
+        '.link-item','.skill-tag','.project-card',
+        '.faq-question','.contact-method','.taskbar-item',
+        '.taskbar-social a','.window-controls button'
     ];
-    hoverTargets.forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => {
-            el.addEventListener('mouseenter', sfxHover);
-        });
-    });
+    hoverSels.forEach(sel =>
+        document.querySelectorAll(sel).forEach(el =>
+            el.addEventListener('mouseenter', sfxHover)
+        )
+    );
 
-    // --- CLICK genérico ---
-    const clickTargets = [
-        '.home-nav-item', '.skill-tag', '.project-card',
-        '.link-item', '.contact-method', '.contact-btn',
-        '.hire-banner a', '.taskbar-item'
+    // Click RE4 em elementos interativos
+    const clickSels = [
+        '.home-nav-item','.skill-tag','.project-card',
+        '.link-item','.contact-method','.contact-btn',
+        '.hire-banner a','.taskbar-item'
     ];
-    clickTargets.forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => {
-            el.addEventListener('mousedown', sfxClick);
-        });
-    });
+    clickSels.forEach(sel =>
+        document.querySelectorAll(sel).forEach(el =>
+            el.addEventListener('mousedown', sfxClick)
+        )
+    );
 
-    // Observer para novos elementos (tabs, etc)
-    observeDynamic();
+    // Start button
+    document.querySelector('.start-btn')
+        ?.addEventListener('mousedown', sfxStartMenu);
+
+    // Observer p/ elementos dinâmicos (taskbar items)
+    new MutationObserver(() => {
+        document.querySelectorAll('.proj-tab:not([data-sfx])')
+            .forEach(el => {
+                el.setAttribute('data-sfx','1');
+                el.addEventListener('mouseenter', sfxHover);
+            });
+        document.querySelectorAll('.taskbar-item:not([data-sfx])')
+            .forEach(el => {
+                el.setAttribute('data-sfx','1');
+                el.addEventListener('mouseenter', sfxHover);
+                el.addEventListener('mousedown', sfxClick);
+            });
+    }).observe(document.body, { childList:true, subtree:true });
 });
 
-// Observa elementos adicionados dinamicamente
-function observeDynamic() {
-    const observer = new MutationObserver(() => {
-        document.querySelectorAll('.proj-tab:not([data-audio])').forEach(el => {
-            el.setAttribute('data-audio', '1');
-            el.addEventListener('mouseenter', sfxHover);
-        });
-        document.querySelectorAll('.taskbar-item:not([data-audio])').forEach(el => {
-            el.setAttribute('data-audio', '1');
-            el.addEventListener('mouseenter', sfxHover);
-            el.addEventListener('mousedown', sfxClick);
-        });
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-}
+// ─────────────────────────────────────────────────
+// SOBRESCREVER FUNÇÕES DO SITE COM SOM
+// ─────────────────────────────────────────────────
+const _openWindow    = openWindow;
+const _closeWindow   = closeWindow;
+const _toggleWindow  = toggleWindow;
+const _toggleTheme   = toggleTheme;
+const _toggleFaq     = toggleFaq;
+const _switchCategory= switchCategory;
+const _startDrag     = startDrag;
 
-// ─────────────────────────────────────────────
-// SOBRESCREVER FUNÇÕES EXISTENTES COM SOM
-// ─────────────────────────────────────────────
-
-// Guarda as funções originais
-const _openWindow = openWindow;
-const _closeWindow = closeWindow;
-const _toggleTheme = toggleTheme;
-const _toggleFaq = toggleFaq;
-const _switchCategory = switchCategory;
-const _chibiClick = chibiClick;
-const _startDrag = startDrag;
-const _toggleWindow = toggleWindow;
-
-// Abre janela com som
 openWindow = function(name) {
-    sfxOpenWindow();
-    _openWindow(name);
+    sfxOpenWindow(); _openWindow(name);
 };
-
-// Fecha janela com som
 closeWindow = function(name) {
-    sfxCloseWindow();
-    _closeWindow(name);
+    sfxCloseWindow(); _closeWindow(name);
 };
-
-// Toggle janela com som
 toggleWindow = function(name) {
-    const win = document.getElementById(name + '-window');
-    if (win && win.classList.contains('visible')) {
-        sfxCloseWindow();
-    } else {
-        sfxOpenWindow();
-    }
+    const w = document.getElementById(name+'-window');
+    w?.classList.contains('visible') ? sfxCloseWindow() : sfxOpenWindow();
     _toggleWindow(name);
 };
-
-// Tema com som mágico
 toggleTheme = function() {
-    sfxThemeToggle();
-    _toggleTheme();
+    sfxThemeToggle(); _toggleTheme();
 };
-
-// FAQ com som direcional
 toggleFaq = function(btn) {
-    const answer = btn.nextElementSibling;
-    const isOpening = !answer.classList.contains('open');
-    sfxFaqToggle(isOpening);
-    _toggleFaq(btn);
+    const isOpening = !btn.nextElementSibling.classList.contains('open');
+    sfxFaqToggle(isOpening); _toggleFaq(btn);
 };
-
-// Troca de categoria com som
 switchCategory = function(cat, btn) {
-    sfxTabSwitch();
-    _switchCategory(cat, btn);
+    sfxTabSwitch(); _switchCategory(cat, btn);
+};
+startDrag = function(e, id) {
+    sfxDragStart(); _startDrag(e, id);
 };
 
-// Chibi com som especial
+// Chibi easter egg
 chibiClick = function() {
-    sfxClick();
+    play(SFX.abrir);
     chibiClicks++;
     if (chibiClicks >= 5) {
         sfxEasterEgg();
         setTimeout(() => {
             triggerTVStatic();
-            alert('🌟 Easter egg encontrado! ▲\n"A coragem de Kaique/Fuuji está aqui!"');
-        }, 600);
+            alert('🌟 Easter egg! ▲\n"A coragem de Kaique/Fuuji está aqui!"');
+        }, 900);
         chibiClicks = 0;
-        return; // evita chamar _chibiClick pra não dar alert duplo
     }
 };
-
-// Drag com som
-startDrag = function(e, winId) {
-    sfxDragStart();
-    _startDrag(e, winId);
-};
-
-// Start button
-document.querySelector('.start-btn')?.addEventListener('mousedown', sfxStartMenu);
-
-// Botões de fechar X
-document.querySelectorAll('.close-btn').forEach(btn => {
-    btn.addEventListener('mouseenter', sfxHover);
-});
 </script>
 </body>
 </html>
