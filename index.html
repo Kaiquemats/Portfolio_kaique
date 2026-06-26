@@ -1422,6 +1422,19 @@
         <div class="taskbar-items" id="taskbarItems"></div>
     </div>
     <div class="taskbar-right">
+        <!-- Controle de áudio -->
+<button id="audioToggleBtn"
+    onclick="toggleAudio()"
+    title="Ativar/Desativar sons"
+    style="
+        background:none; border:none;
+        color:var(--text-secondary); font-size:16px;
+        cursor:pointer; padding:4px 6px;
+        transition:all 0.2s; line-height:1;
+    "
+    onmouseenter="this.style.color='var(--p4-yellow)'"
+    onmouseleave="this.style.color='var(--text-secondary)'"
+>🔊</button>
         <div class="taskbar-social">
             <a href="https://x.com/Fuujixz" target="_blank" title="Twitter">🐦</a>
             <a href="https://www.instagram.com/kaique_martss/" target="_blank" title="Instagram">📸</a>
@@ -1649,6 +1662,328 @@ setTimeout(() => {
     homeWin.style.transform = 'none';
     updateIconState('home', true);
 }, 120);
+
+<script>
+// ╔══════════════════════════════════════════╗
+// ║         SISTEMA DE ÁUDIO - FUUJI         ║
+// ║     Web Audio API (sem arquivos!)        ║
+// ╚══════════════════════════════════════════╝
+
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let ctx = null;
+let masterVolume = 0.35;
+let audioEnabled = true;
+
+// Inicia contexto apenas após interação do usuário
+function getCtx() {
+    if (!ctx) ctx = new AudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+}
+
+// ─────────────────────────────────────────────
+// FUNÇÕES BASE
+// ─────────────────────────────────────────────
+function playTone({ freq = 440, type = 'square', duration = 0.1,
+    volume = 0.2, delay = 0, attack = 0.005, decay = 0.05 } = {}) {
+    if (!audioEnabled) return;
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+
+    osc.connect(gain);
+    gain.connect(c.destination);
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, c.currentTime + delay);
+
+    gain.gain.setValueAtTime(0, c.currentTime + delay);
+    gain.gain.linearRampToValueAtTime(volume * masterVolume,
+        c.currentTime + delay + attack);
+    gain.gain.exponentialRampToValueAtTime(0.0001,
+        c.currentTime + delay + duration + decay);
+
+    osc.start(c.currentTime + delay);
+    osc.stop(c.currentTime + delay + duration + decay + 0.05);
+}
+
+function playNoise({ duration = 0.08, volume = 0.15, delay = 0 } = {}) {
+    if (!audioEnabled) return;
+    const c = getCtx();
+    const bufferSize = c.sampleRate * duration;
+    const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+    const source = c.createBufferSource();
+    const gain = c.createGain();
+    const filter = c.createBiquadFilter();
+
+    source.buffer = buffer;
+    filter.type = 'bandpass';
+    filter.frequency.value = 800;
+    filter.Q.value = 0.5;
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(c.destination);
+
+    gain.gain.setValueAtTime(volume * masterVolume, c.currentTime + delay);
+    gain.gain.exponentialRampToValueAtTime(0.0001,
+        c.currentTime + delay + duration);
+
+    source.start(c.currentTime + delay);
+    source.stop(c.currentTime + delay + duration + 0.05);
+}
+
+// ─────────────────────────────────────────────
+// SONS TEMÁTICOS
+// ─────────────────────────────────────────────
+
+// 🪟 Abrir janela — acorde ascendente (Persona 4 style)
+function sfxOpenWindow() {
+    const notes = [330, 440, 550, 660];
+    notes.forEach((freq, i) => {
+        playTone({ freq, type: 'square', duration: 0.06,
+            volume: 0.18, delay: i * 0.04, attack: 0.003, decay: 0.08 });
+    });
+    playNoise({ duration: 0.06, volume: 0.08, delay: 0 });
+}
+
+// ❌ Fechar janela — acorde descendente
+function sfxCloseWindow() {
+    const notes = [550, 440, 330, 220];
+    notes.forEach((freq, i) => {
+        playTone({ freq, type: 'square', duration: 0.05,
+            volume: 0.15, delay: i * 0.035, attack: 0.003, decay: 0.06 });
+    });
+}
+
+// 🖱️ Hover — bip suave (Zelda style)
+function sfxHover() {
+    playTone({ freq: 660, type: 'sine', duration: 0.04,
+        volume: 0.08, attack: 0.002, decay: 0.04 });
+}
+
+// 🖱️ Click simples — bip de seleção
+function sfxClick() {
+    playTone({ freq: 880, type: 'square', duration: 0.03,
+        volume: 0.14, attack: 0.001, decay: 0.05 });
+    playTone({ freq: 1100, type: 'square', duration: 0.03,
+        volume: 0.1, delay: 0.03, attack: 0.001, decay: 0.04 });
+}
+
+// 📁 Troca de aba projetos
+function sfxTabSwitch() {
+    playTone({ freq: 740, type: 'triangle', duration: 0.05,
+        volume: 0.12, attack: 0.002, decay: 0.05 });
+    playTone({ freq: 988, type: 'triangle', duration: 0.05,
+        volume: 0.1, delay: 0.05, attack: 0.002, decay: 0.05 });
+}
+
+// ❓ FAQ abrir/fechar
+function sfxFaqToggle(isOpening) {
+    if (isOpening) {
+        playTone({ freq: 523, type: 'sine', duration: 0.06,
+            volume: 0.12, attack: 0.003, decay: 0.07 });
+        playTone({ freq: 659, type: 'sine', duration: 0.06,
+            volume: 0.1, delay: 0.06, attack: 0.003, decay: 0.07 });
+    } else {
+        playTone({ freq: 659, type: 'sine', duration: 0.06,
+            volume: 0.1, attack: 0.003, decay: 0.07 });
+        playTone({ freq: 523, type: 'sine', duration: 0.06,
+            volume: 0.08, delay: 0.06, attack: 0.003, decay: 0.07 });
+    }
+}
+
+// 🌙 Trocar tema dia/noite — efeito mágico
+function sfxThemeToggle() {
+    const notes = [262, 330, 392, 523, 659, 784];
+    notes.forEach((freq, i) => {
+        playTone({ freq, type: 'sine', duration: 0.08,
+            volume: 0.14, delay: i * 0.045, attack: 0.003, decay: 0.1 });
+    });
+}
+
+// ⭐ Easter egg chibi — jingle especial
+function sfxEasterEgg() {
+    const melody = [
+        {f:523,d:0.12},{f:659,d:0.12},{f:784,d:0.12},
+        {f:1047,d:0.2},{f:784,d:0.08},{f:1047,d:0.28}
+    ];
+    let t = 0;
+    melody.forEach(note => {
+        playTone({ freq: note.f, type: 'square', duration: note.d,
+            volume: 0.18, delay: t, attack: 0.005, decay: 0.08 });
+        t += note.d + 0.02;
+    });
+    playNoise({ duration: 0.4, volume: 0.06, delay: 0 });
+}
+
+// 🖱️ Arrastar janela — som sutil
+function sfxDragStart() {
+    playNoise({ duration: 0.05, volume: 0.07 });
+}
+
+// ▲ Start menu
+function sfxStartMenu() {
+    playTone({ freq: 392, type: 'square', duration: 0.06,
+        volume: 0.15, attack: 0.003, decay: 0.06 });
+    playTone({ freq: 523, type: 'square', duration: 0.06,
+        volume: 0.14, delay: 0.06, attack: 0.003, decay: 0.06 });
+    playTone({ freq: 659, type: 'square', duration: 0.1,
+        volume: 0.16, delay: 0.12, attack: 0.003, decay: 0.09 });
+}
+
+// ─────────────────────────────────────────────
+// CONTROLE DE VOLUME / MUTE
+// ─────────────────────────────────────────────
+function toggleAudio() {
+    audioEnabled = !audioEnabled;
+    const btn = document.getElementById('audioToggleBtn');
+    if (btn) btn.textContent = audioEnabled ? '🔊' : '🔇';
+}
+
+function setVolume(val) {
+    masterVolume = parseFloat(val);
+}
+
+// ─────────────────────────────────────────────
+// APLICAR NOS ELEMENTOS
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- HOVER em tudo interativo ---
+    const hoverTargets = [
+        '.desktop-icon', '.home-nav-item', '.proj-tab',
+        '.link-item', '.skill-tag', '.project-card',
+        '.faq-question', '.contact-method', '.taskbar-item',
+        '.taskbar-social a', '.window-controls button'
+    ];
+    hoverTargets.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => {
+            el.addEventListener('mouseenter', sfxHover);
+        });
+    });
+
+    // --- CLICK genérico ---
+    const clickTargets = [
+        '.home-nav-item', '.skill-tag', '.project-card',
+        '.link-item', '.contact-method', '.contact-btn',
+        '.hire-banner a', '.taskbar-item'
+    ];
+    clickTargets.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => {
+            el.addEventListener('mousedown', sfxClick);
+        });
+    });
+
+    // Observer para novos elementos (tabs, etc)
+    observeDynamic();
+});
+
+// Observa elementos adicionados dinamicamente
+function observeDynamic() {
+    const observer = new MutationObserver(() => {
+        document.querySelectorAll('.proj-tab:not([data-audio])').forEach(el => {
+            el.setAttribute('data-audio', '1');
+            el.addEventListener('mouseenter', sfxHover);
+        });
+        document.querySelectorAll('.taskbar-item:not([data-audio])').forEach(el => {
+            el.setAttribute('data-audio', '1');
+            el.addEventListener('mouseenter', sfxHover);
+            el.addEventListener('mousedown', sfxClick);
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+// ─────────────────────────────────────────────
+// SOBRESCREVER FUNÇÕES EXISTENTES COM SOM
+// ─────────────────────────────────────────────
+
+// Guarda as funções originais
+const _openWindow = openWindow;
+const _closeWindow = closeWindow;
+const _toggleTheme = toggleTheme;
+const _toggleFaq = toggleFaq;
+const _switchCategory = switchCategory;
+const _chibiClick = chibiClick;
+const _startDrag = startDrag;
+const _toggleWindow = toggleWindow;
+
+// Abre janela com som
+openWindow = function(name) {
+    sfxOpenWindow();
+    _openWindow(name);
+};
+
+// Fecha janela com som
+closeWindow = function(name) {
+    sfxCloseWindow();
+    _closeWindow(name);
+};
+
+// Toggle janela com som
+toggleWindow = function(name) {
+    const win = document.getElementById(name + '-window');
+    if (win && win.classList.contains('visible')) {
+        sfxCloseWindow();
+    } else {
+        sfxOpenWindow();
+    }
+    _toggleWindow(name);
+};
+
+// Tema com som mágico
+toggleTheme = function() {
+    sfxThemeToggle();
+    _toggleTheme();
+};
+
+// FAQ com som direcional
+toggleFaq = function(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpening = !answer.classList.contains('open');
+    sfxFaqToggle(isOpening);
+    _toggleFaq(btn);
+};
+
+// Troca de categoria com som
+switchCategory = function(cat, btn) {
+    sfxTabSwitch();
+    _switchCategory(cat, btn);
+};
+
+// Chibi com som especial
+chibiClick = function() {
+    sfxClick();
+    chibiClicks++;
+    if (chibiClicks >= 5) {
+        sfxEasterEgg();
+        setTimeout(() => {
+            triggerTVStatic();
+            alert('🌟 Easter egg encontrado! ▲\n"A coragem de Kaique/Fuuji está aqui!"');
+        }, 600);
+        chibiClicks = 0;
+        return; // evita chamar _chibiClick pra não dar alert duplo
+    }
+};
+
+// Drag com som
+startDrag = function(e, winId) {
+    sfxDragStart();
+    _startDrag(e, winId);
+};
+
+// Start button
+document.querySelector('.start-btn')?.addEventListener('mousedown', sfxStartMenu);
+
+// Botões de fechar X
+document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', sfxHover);
+});
+</script>
 </script>
 </body>
 </html>
