@@ -3,34 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seu Nome | Portfolio Desktop</title>
+    <title>Fuuji | Portfolio</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --p4-yellow: #FFD700;
             --p4-yellow-dark: #C5A200;
-            --p4-yellow-light: #FFF2A8;
             --zelda-green: #4CAF50;
-            --zelda-green-dark: #2E7D32;
             --zelda-green-light: #81C784;
-            --ff-blue: #1A237E;
-            --re4-amber: #8B6914;
             --bg-dark: #1a1f2e;
             --bg-mid: #232a3e;
             --bg-light: #2d3652;
-            --window-bg: rgba(26, 31, 46, 0.95);
-            --window-border: var(--p4-yellow);
+            --window-bg: rgba(26, 31, 46, 0.97);
             --text-primary: #E8E8E8;
             --text-accent: var(--p4-yellow);
             --text-secondary: #A0A8C0;
-            --nature-fog: rgba(129, 199, 132, 0.05);
         }
 
         body {
@@ -40,1968 +30,1561 @@
             overflow: hidden;
             height: 100vh;
             width: 100vw;
-            cursor: default;
             user-select: none;
         }
 
-        /* ===== LOW POLY BACKGROUND ===== */
+        /* ===== LOADING ===== */
+        .loading-screen {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #0a0a0a;
+            z-index: 99999;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.6s, visibility 0.6s;
+        }
+        .loading-screen.hidden { opacity: 0; visibility: hidden; }
+        .loading-triforce {
+            font-size: 48px; color: var(--p4-yellow);
+            margin-bottom: 20px;
+            animation: triGlow 2s ease-in-out infinite;
+        }
+        @keyframes triGlow {
+            0%,100%{text-shadow:0 0 20px rgba(255,215,0,0.3);}
+            50%{text-shadow:0 0 50px rgba(255,215,0,0.9);}
+        }
+        .loading-text {
+            font-family:'Press Start 2P',cursive; font-size:12px;
+            color:var(--p4-yellow); margin-bottom:24px;
+            animation:blink 1s infinite;
+        }
+        @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+        .loading-bar {
+            width:300px; height:6px;
+            border:1px solid var(--p4-yellow);
+            background:rgba(255,215,0,0.1); overflow:hidden;
+        }
+        .loading-bar-fill {
+            height:100%; width:0;
+            background:var(--p4-yellow);
+            animation:fillBar 2.5s ease forwards;
+        }
+        @keyframes fillBar{0%{width:0}60%{width:70%}100%{width:100%}}
+
+        /* ===== DAY/NIGHT TOGGLE BTN ===== */
+        .theme-toggle {
+            position: fixed; top: 16px; right: 16px;
+            z-index: 900;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--p4-yellow);
+            color: var(--p4-yellow);
+            font-size: 20px;
+            width: 44px; height: 44px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+            transition: all 0.3s;
+        }
+        .theme-toggle:hover { background: rgba(255,215,0,0.15); }
+
+        /* ===== BACKGROUND SCENE ===== */
         .bg-scene {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: 0;
-            overflow: hidden;
+            z-index: 0; overflow: hidden;
+            transition: all 1s ease;
         }
 
-        .bg-gradient {
-            position: absolute;
-            width: 100%; height: 100%;
-            background: linear-gradient(
-                180deg,
-                #0d1117 0%,
-                #1a1f2e 25%,
-                #1e2d1e 50%,
-                #2a3a2a 70%,
-                #1a2615 100%
-            );
+        /* --- NIGHT (default) --- */
+        .bg-night-gradient {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(180deg,#050d18 0%,#0a1520 20%,#0d1e14 55%,#0a180f 100%);
+            opacity: 1; transition: opacity 1s;
         }
-
-        /* Stars */
-        .stars {
-            position: absolute;
-            width: 100%; height: 50%;
-            top: 0;
+        .bg-day-gradient {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(180deg,#87CEEB 0%,#B0E0FF 35%,#87CEEB 60%,#006994 75%,#004d70 100%);
+            opacity: 0; transition: opacity 1s;
         }
+        body.day-mode .bg-night-gradient { opacity: 0; }
+        body.day-mode .bg-day-gradient { opacity: 1; }
 
+        /* Stars (night only) */
+        .stars-layer {
+            position: absolute; width: 100%; height: 45%;
+            transition: opacity 1s;
+        }
+        body.day-mode .stars-layer { opacity: 0; }
         .star {
-            position: absolute;
-            background: #fff;
+            position: absolute; background: #fff;
             border-radius: 50%;
             animation: twinkle 3s ease-in-out infinite alternate;
         }
+        @keyframes twinkle{0%{opacity:0.1}100%{opacity:1}}
 
-        @keyframes twinkle {
-            0% { opacity: 0.2; }
-            100% { opacity: 1; }
-        }
-
-        /* Low Poly Mountains */
-        .mountains {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 60%;
-        }
-
-        .mountain {
-            position: absolute;
-            bottom: 0;
-            width: 0; height: 0;
-            border-style: solid;
-        }
-
-        .mountain-1 {
-            left: -5%;
-            border-width: 0 250px 300px 250px;
-            border-color: transparent transparent #1a3320 transparent;
-        }
-
-        .mountain-1::after {
-            content: '';
-            position: absolute;
-            top: 40px;
-            left: -120px;
-            border-width: 0 120px 260px 130px;
-            border-style: solid;
-            border-color: transparent transparent #1f3d28 transparent;
-        }
-
-        .mountain-2 {
-            left: 15%;
-            border-width: 0 300px 400px 280px;
-            border-color: transparent transparent #162b1e transparent;
-        }
-
-        .mountain-2::after {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: -140px;
-            border-width: 0 140px 380px 160px;
-            border-style: solid;
-            border-color: transparent transparent #1a3525 transparent;
-        }
-
-        .mountain-3 {
-            left: 40%;
-            border-width: 0 350px 350px 300px;
-            border-color: transparent transparent #1e3828 transparent;
-        }
-
-        .mountain-4 {
-            left: 65%;
-            border-width: 0 280px 420px 320px;
-            border-color: transparent transparent #152a1b transparent;
-        }
-
-        .mountain-5 {
-            left: 85%;
-            border-width: 0 250px 280px 200px;
-            border-color: transparent transparent #1b3322 transparent;
-        }
-
-        /* Fog layers */
-        .fog {
-            position: absolute;
-            bottom: 15%;
-            width: 200%;
-            height: 80px;
-            background: linear-gradient(90deg,
-                transparent,
-                rgba(129, 199, 132, 0.04),
-                rgba(129, 199, 132, 0.08),
-                rgba(129, 199, 132, 0.04),
-                transparent
-            );
-            animation: fogMove 20s ease-in-out infinite;
-        }
-
-        .fog-2 {
-            bottom: 20%;
-            animation-delay: -7s;
-            animation-duration: 25s;
-            opacity: 0.7;
-        }
-
-        @keyframes fogMove {
-            0%, 100% { transform: translateX(-25%); }
-            50% { transform: translateX(0%); }
-        }
-
-        /* Ground */
-        .ground {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 15%;
-            background: linear-gradient(180deg, #0f1f14 0%, #0a1a0f 100%);
-            clip-path: polygon(0 30%, 5% 20%, 12% 35%, 20% 15%, 30% 25%, 40% 10%, 50% 30%, 60% 15%, 70% 25%, 80% 10%, 88% 28%, 95% 15%, 100% 25%, 100% 100%, 0 100%);
-        }
-
-        /* Fireflies */
-        .firefly {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: var(--p4-yellow);
+        /* NIGHT: Zelda cel-shaded moon */
+        .cel-moon {
+            position: absolute; top: 60px; right: 120px;
+            width: 80px; height: 80px;
             border-radius: 50%;
-            box-shadow: 0 0 6px 2px rgba(255, 215, 0, 0.4);
-            animation: fireflyFloat 8s ease-in-out infinite;
+            background: radial-gradient(circle at 35% 35%, #FFFDE7, #FFF176, #F9A825);
+            box-shadow: 0 0 40px rgba(255,245,100,0.4), 0 0 80px rgba(255,235,0,0.15);
+            /* Cel shading flat ring */
+            border: 3px solid rgba(200,160,0,0.5);
+            transition: opacity 1s;
         }
+        body.day-mode .cel-moon { opacity: 0; }
 
-        @keyframes fireflyFloat {
-            0%, 100% { transform: translate(0, 0); opacity: 0; }
-            10% { opacity: 1; }
-            50% { transform: translate(40px, -60px); opacity: 0.8; }
-            90% { opacity: 1; }
-        }
-
-        /* Triforce subtle watermark */
-        .triforce-watermark {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 45px;
-            opacity: 0.08;
-            z-index: 1;
-        }
-
-        .triforce-watermark::before,
-        .triforce-watermark::after {
+        /* Cel-shading outline effect on moon */
+        .cel-moon::after {
             content: '';
-            position: absolute;
+            position: absolute; top: 10px; left: 10px;
+            width: 20px; height: 12px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+        }
+
+        /* NIGHT: Cel-shaded low poly trees (Zelda style) */
+        .night-trees { position: absolute; bottom: 0; width: 100%; transition: opacity 1s; }
+        body.day-mode .night-trees { opacity: 0; }
+
+        .cel-tree {
+            position: absolute; bottom: 0;
+            display: flex; flex-direction: column;
+            align-items: center;
+        }
+        .cel-tree .trunk {
+            width: 14px; height: 30px;
+            background: #2d1a0e;
+            border: 2px solid #1a0f08;
+        }
+        .cel-tree .foliage-bot {
             width: 0; height: 0;
             border-style: solid;
+            position: relative; top: 0;
+        }
+        .cel-tree .foliage-mid {
+            width: 0; height: 0;
+            border-style: solid;
+            position: relative; top: 10px;
+        }
+        .cel-tree .foliage-top {
+            width: 0; height: 0;
+            border-style: solid;
+            position: relative; top: 20px;
         }
 
-        .triforce-watermark::before {
-            top: 0; left: 50%;
+        /* Mountains (night) - cel shaded */
+        .night-mountains { position: absolute; bottom: 0; width: 100%; transition: opacity 1s; }
+        body.day-mode .night-mountains { opacity: 0; }
+
+        .cel-mountain {
+            position: absolute; bottom: 0;
+            width: 0; height: 0; border-style: solid;
+        }
+        .cel-mountain::after {
+            content: '';
+            position: absolute;
+            width: 0; height: 0; border-style: solid;
+        }
+
+        /* Ground night */
+        .night-ground {
+            position: absolute; bottom: 0; width: 100%; height: 14%;
+            background: linear-gradient(180deg,#0a1f0e 0%,#061208 100%);
+            clip-path: polygon(0 35%,8% 20%,18% 38%,28% 18%,38% 30%,48% 12%,58% 28%,68% 14%,78% 26%,88% 10%,95% 22%,100% 18%,100% 100%,0 100%);
+            border-top: 2px solid #1a3a1a;
+            transition: opacity 1s;
+        }
+        body.day-mode .night-ground { opacity: 0; }
+
+        /* Fireflies (night) */
+        .firefly {
+            position: absolute; width: 4px; height: 4px;
+            background: #b8ff6e; border-radius: 50%;
+            box-shadow: 0 0 8px 3px rgba(184,255,110,0.5);
+            animation: ffFloat 7s ease-in-out infinite;
+            transition: opacity 1s;
+        }
+        body.day-mode .firefly { opacity: 0; }
+        @keyframes ffFloat{
+            0%,100%{transform:translate(0,0);opacity:0;}
+            15%{opacity:1;}
+            50%{transform:translate(35px,-55px);opacity:0.8;}
+            85%{opacity:1;}
+        }
+
+        /* === DAY SCENE === */
+        /* Sun */
+        .day-sun {
+            position: absolute; top: 60px; left: 50%;
             transform: translateX(-50%);
-            border-width: 0 12px 22px 12px;
-            border-color: transparent transparent var(--p4-yellow) transparent;
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #FFF9C4, #FFEB3B, #FF8F00);
+            box-shadow: 0 0 60px rgba(255,235,59,0.6), 0 0 120px rgba(255,152,0,0.2);
+            opacity: 0; transition: opacity 1s;
+            animation: sunPulse 4s ease-in-out infinite;
+        }
+        body.day-mode .day-sun { opacity: 1; }
+        @keyframes sunPulse{
+            0%,100%{box-shadow:0 0 60px rgba(255,235,59,0.6),0 0 120px rgba(255,152,0,0.2);}
+            50%{box-shadow:0 0 80px rgba(255,235,59,0.9),0 0 160px rgba(255,152,0,0.35);}
+        }
+        /* Sun rays */
+        .day-sun::after {
+            content:'';
+            position: absolute; top: -20px; left: -20px;
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,245,100,0.2) 0%, transparent 70%);
+            animation: sunRays 3s linear infinite;
+        }
+        @keyframes sunRays { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+
+        /* Ocean */
+        .day-ocean {
+            position: absolute; bottom: 0; width: 100%; height: 42%;
+            opacity: 0; transition: opacity 1s;
+        }
+        body.day-mode .day-ocean { opacity: 1; }
+
+        .ocean-deep {
+            position: absolute; bottom: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg,#0288D1 0%,#01579B 50%,#003d6b 100%);
+        }
+        .ocean-wave {
+            position: absolute; width: 200%; height: 60px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 50% 50% 0 0 / 30px;
+            animation: wave 6s ease-in-out infinite;
+        }
+        .ocean-wave:nth-child(2) { animation-delay: -2s; animation-duration: 8s; opacity: 0.7; top: 10px; }
+        .ocean-wave:nth-child(3) { animation-delay: -4s; animation-duration: 10s; opacity: 0.5; top: 20px; }
+        @keyframes wave {
+            0%,100%{transform:translateX(-25%);}
+            50%{transform:translateX(0%);}
         }
 
-        .triforce-watermark::after {
-            bottom: 0; left: 0;
-            border-width: 0 12px 22px 12px;
-            border-color: transparent transparent var(--p4-yellow) transparent;
-            box-shadow: 26px 0 0 0 transparent;
+        /* Shore */
+        .day-shore {
+            position: absolute; bottom: 39%; width: 100%; height: 8%;
+            background: linear-gradient(180deg,#87CEEB 0%,#B8E4F9 40%,#0288D1 100%);
+            clip-path: polygon(0 60%,5% 40%,12% 65%,20% 35%,30% 55%,40% 30%,50% 50%,60% 28%,70% 48%,80% 25%,90% 45%,100% 30%,100% 100%,0 100%);
+            opacity: 0; transition: opacity 1s;
+        }
+        body.day-mode .day-shore { opacity: 1; }
+
+        /* Day clouds */
+        .day-cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.85);
+            border-radius: 50px;
+            opacity: 0; transition: opacity 1s;
+            animation: cloudDrift 20s linear infinite;
+        }
+        body.day-mode .day-cloud { opacity: 1; }
+        @keyframes cloudDrift{0%{transform:translateX(-200px)}100%{transform:translateX(calc(100vw + 200px))}}
+        .day-cloud::before,.day-cloud::after{
+            content:''; position:absolute;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
         }
 
-        /* ===== TASKBAR ===== */
-        .taskbar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 48px;
-            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-            border-top: 2px solid var(--p4-yellow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 12px;
-            z-index: 1000;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        /* Scanline overlay */
+        .scanline-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events:none; z-index:998;
+            background: repeating-linear-gradient(0deg,transparent 0,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);
         }
-
-        .taskbar-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .tv-static {
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events:none; z-index:9999; opacity:0;
         }
-
-        .start-btn {
-            background: linear-gradient(180deg, var(--p4-yellow) 0%, var(--p4-yellow-dark) 100%);
-            border: none;
-            color: #1a1a1a;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 9px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
-        }
-
-        .start-btn:hover {
-            background: linear-gradient(180deg, #FFE44D 0%, var(--p4-yellow) 100%);
-            transform: scale(1.05);
-        }
-
-        .start-btn .triforce-icon {
-            width: 12px;
-            height: 12px;
-            display: inline-block;
-            position: relative;
-        }
-
-        .start-btn .triforce-icon::before {
-            content: '▲';
-            font-size: 12px;
-            color: #1a1a1a;
-        }
-
-        .taskbar-items {
-            display: flex;
-            gap: 4px;
-            flex: 1;
-            padding: 0 12px;
-        }
-
-        .taskbar-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            color: var(--text-secondary);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            padding: 6px 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            max-width: 160px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .taskbar-item:hover {
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .taskbar-item.active {
-            background: rgba(255, 215, 0, 0.15);
-            border-color: var(--p4-yellow);
-            color: var(--p4-yellow);
-        }
-
-        .taskbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .taskbar-clock {
-            padding: 4px 10px;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .taskbar-social {
-            display: flex;
-            gap: 8px;
-            padding-right: 8px;
-        }
-
-        .taskbar-social a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 16px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-        }
-
-        .taskbar-social a:hover {
-            color: var(--p4-yellow);
-            transform: translateY(-2px);
-        }
+        .tv-static.flash { animation: tvFlash 0.45s ease-out forwards; }
+        @keyframes tvFlash{0%{opacity:0.7;background:rgba(255,215,0,0.25);}100%{opacity:0;}}
 
         /* ===== DESKTOP ICONS ===== */
         .desktop-icons {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            position: fixed; top: 20px; left: 20px;
+            display: flex; flex-direction: column; gap: 16px;
             z-index: 10;
         }
-
         .desktop-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 6px;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 5px;
+            cursor: pointer; padding: 8px;
+            border-radius: 4px; width: 80px;
             transition: all 0.2s;
-            width: 90px;
         }
-
-        .desktop-icon:hover {
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .desktop-icon:active {
-            background: rgba(255, 215, 0, 0.2);
-        }
-
-        .desktop-icon .icon-img {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-        }
-
+        .desktop-icon:hover { background: rgba(255,215,0,0.12); }
+        .desktop-icon.active-icon { background: rgba(255,215,0,0.18); border: 1px solid rgba(255,215,0,0.3); }
+        .icon-img { font-size: 30px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
         .desktop-icon span {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--text-primary);
-            text-align: center;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            font-family:'JetBrains Mono',monospace; font-size:9px;
+            color:var(--text-primary); text-align:center;
+            text-shadow:1px 1px 3px rgba(0,0,0,0.9);
         }
 
-        /* ===== WINDOW SYSTEM ===== */
+        /* ===== WINDOW ===== */
         .window {
             position: absolute;
             background: var(--window-bg);
             border: 2px solid var(--p4-yellow);
-            border-radius: 0;
-            box-shadow:
-                0 0 30px rgba(255, 215, 0, 0.1),
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            min-width: 350px;
-            min-height: 250px;
-            display: none;
-            z-index: 100;
-            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+            box-shadow: 0 0 30px rgba(255,215,0,0.12), 0 20px 60px rgba(0,0,0,0.6);
+            min-width: 340px; min-height: 220px;
+            display: none; z-index: 100;
+            clip-path: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
             overflow: hidden;
         }
-
-        .window.visible {
-            display: block;
-            animation: windowOpen 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes windowOpen {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .window.visible { display:block; animation:winOpen 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes winOpen{0%{transform:scale(0.75);opacity:0}100%{transform:scale(1);opacity:1}}
 
         .window-header {
             background: linear-gradient(90deg, var(--p4-yellow), var(--p4-yellow-dark));
-            padding: 10px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 9px 14px;
+            display: flex; justify-content: space-between; align-items: center;
             cursor: grab;
         }
-
-        .window-header:active {
-            cursor: grabbing;
-        }
-
+        .window-header:active { cursor: grabbing; }
         .window-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 11px;
-            color: #1a1a1a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-family:'Press Start 2P',cursive; font-size:10px;
+            color:#1a1a1a; display:flex; align-items:center; gap:7px;
         }
-
-        .window-controls {
-            display: flex;
-            gap: 6px;
-        }
-
         .window-controls button {
-            width: 24px;
-            height: 24px;
-            border: 1px solid rgba(0,0,0,0.3);
-            background: rgba(0,0,0,0.15);
-            color: #1a1a1a;
-            cursor: pointer;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
+            width:22px; height:22px;
+            border:1px solid rgba(0,0,0,0.3);
+            background:rgba(0,0,0,0.15);
+            color:#1a1a1a; cursor:pointer;
+            font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:bold;
+            display:flex; align-items:center; justify-content:center;
+            transition:all 0.2s;
         }
-
-        .window-controls button:hover {
-            background: rgba(0,0,0,0.3);
-        }
-
-        .window-controls .close-btn:hover {
-            background: #e74c3c;
-            color: white;
-        }
+        .window-controls .close-btn:hover { background:#e74c3c; color:#fff; }
 
         .window-body {
-            padding: 24px;
-            max-height: 500px;
-            overflow-y: auto;
+            padding: 22px;
+            max-height: 500px; overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: var(--p4-yellow) var(--bg-dark);
         }
+        .window-body::-webkit-scrollbar { width:7px; }
+        .window-body::-webkit-scrollbar-track { background:var(--bg-dark); }
+        .window-body::-webkit-scrollbar-thumb { background:var(--p4-yellow-dark); }
 
-        .window-body::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .window-body::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-
-        .window-body::-webkit-scrollbar-thumb {
-            background: var(--p4-yellow-dark);
-            border-radius: 0;
-        }
-
-        /* ===== PERSONA 4 TV STATIC EFFECT ===== */
-        .tv-static {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(255, 215, 0, 0.03) 0px,
-                transparent 2px,
-                transparent 4px
-            );
-            animation: scanlines 0.1s linear infinite;
-        }
-
-        .tv-static.flash {
-            animation: tvFlash 0.5s ease-out;
-        }
-
-        @keyframes tvFlash {
-            0% { opacity: 0.8; background: rgba(255, 215, 0, 0.3); }
-            50% { opacity: 0.3; }
-            100% { opacity: 0; }
-        }
-
-        @keyframes scanlines {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 4px; }
-        }
-
-        /* Permanent subtle scanlines */
-        .scanline-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 998;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent 0px,
-                transparent 2px,
-                rgba(0, 0, 0, 0.03) 2px,
-                rgba(0, 0, 0, 0.03) 4px
-            );
-        }
-
-        /* ===== HOME WINDOW ===== */
-        #home-window {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-        }
-
-        .home-content {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .home-content .greeting {
-            font-family: 'Inter', sans-serif;
-            font-size: 18px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
+        /* ===== HOME ===== */
+        #home-window { top:50%; left:50%; transform:translate(-50%,-50%); width:580px; }
+        .home-content { text-align:center; padding:36px 16px; }
+        .home-content .greeting { font-size:16px; color:var(--text-secondary); margin-bottom:6px; }
         .home-content .name {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 28px;
-            color: var(--p4-yellow);
-            margin-bottom: 16px;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            font-family:'Press Start 2P',cursive; font-size:26px;
+            color:var(--p4-yellow); margin-bottom:6px;
+            text-shadow:0 0 20px rgba(255,215,0,0.35);
         }
-
-        .home-content .subtitle {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            color: var(--zelda-green-light);
-            margin-bottom: 40px;
-            letter-spacing: 1px;
+        .home-content .nick { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--zelda-green-light); margin-bottom:12px; }
+        .home-content .subtitle { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-secondary); margin-bottom:10px; letter-spacing:1px; }
+        .status-available {
+            display:inline-block; padding:4px 10px;
+            background:rgba(76,175,80,0.15); border:1px solid var(--zelda-green);
+            color:var(--zelda-green-light);
+            font-family:'JetBrains Mono',monospace; font-size:10px;
+            animation:pulse 2s infinite;
         }
-
-        .home-nav {
-            display: flex;
-            justify-content: center;
-            gap: 28px;
-            flex-wrap: wrap;
-        }
-
+        @keyframes pulse{0%,100%{border-color:var(--zelda-green);}50%{border-color:var(--zelda-green-light);box-shadow:0 0 10px rgba(76,175,80,0.3);}}
+        .home-nav { display:flex; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:30px; }
         .home-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            padding: 12px;
+            display:flex; flex-direction:column; align-items:center; gap:8px;
+            cursor:pointer; padding:10px; transition:all 0.3s;
         }
+        .home-nav-item:hover { transform:translateY(-4px); }
+        .home-nav-item:hover .nav-icon { text-shadow:0 0 15px rgba(255,215,0,0.6); }
+        .nav-icon { font-size:32px; transition:all 0.3s; }
+        .nav-label { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-secondary); }
 
-        .home-nav-item:hover {
-            transform: translateY(-4px);
-        }
-
-        .home-nav-item:hover .nav-icon {
-            color: var(--p4-yellow);
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-        }
-
-        .nav-icon {
-            font-size: 36px;
-            color: var(--text-primary);
-            transition: all 0.3s;
-        }
-
-        .nav-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        /* Chibi Mascot */
-        .chibi-mascot {
-            position: fixed;
-            bottom: 55px;
-            right: 20px;
-            width: 80px;
-            height: 80px;
-            z-index: 999;
-            cursor: pointer;
-            transition: transform 0.3s;
-            animation: chibiFloat 3s ease-in-out infinite;
-        }
-
-        .chibi-mascot:hover {
-            transform: scale(1.15) rotate(-5deg);
-        }
-
-        @keyframes chibiFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        .chibi-svg {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-        }
-
-        /* ===== ABOUT WINDOW ===== */
-        #about-window {
-            top: 60px;
-            left: 80px;
-            width: 520px;
-        }
+        /* ===== ABOUT ===== */
+        #about-window { top:60px; left:100px; width:510px; }
 
         .about-header-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            display:flex; align-items:center; gap:18px;
+            margin-bottom:22px; padding-bottom:18px;
+            border-bottom:1px solid rgba(255,215,0,0.2);
         }
 
+        /*
+         * ======================================================
+         * FOTO DO PERFIL - para colocar SUA foto:
+         *
+         * 1) Troque o emoji 🧑‍🎨 por uma tag <img>:
+         *    <img src="SUA_FOTO.png" alt="Fuuji"
+         *         style="width:100%;height:100%;object-fit:cover;">
+         *
+         * 2) Coloque o arquivo da foto na mesma pasta do HTML
+         *    e atualize o src="SUA_FOTO.png" com o nome correto.
+         *
+         * 3) Para foto redonda mude border-radius no .about-avatar
+         *    de 0 para 50%.
+         * ======================================================
+         */
         .about-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 0;
-            border: 3px solid var(--p4-yellow);
-            background: var(--bg-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
-            flex-shrink: 0;
+            width:96px; height:96px; flex-shrink:0;
+            border:3px solid var(--p4-yellow);
+            background:var(--bg-light);
+            display:flex; align-items:center; justify-content:center;
+            font-size:46px; overflow:hidden;
+            clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
         }
 
         .about-name-info h2 {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 16px;
-            color: var(--p4-yellow);
-            margin-bottom: 8px;
+            font-family:'Press Start 2P',cursive; font-size:15px;
+            color:var(--p4-yellow); margin-bottom:4px;
         }
-
-        .about-name-info p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.6;
+        .about-name-info .nick-tag {
+            font-family:'JetBrains Mono',monospace; font-size:11px;
+            color:var(--zelda-green-light); margin-bottom:6px;
         }
+        .about-name-info p { font-size:12px; color:var(--text-secondary); line-height:1.6; }
 
-        .about-description {
-            font-size: 14px;
-            line-height: 1.8;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-        }
-
-        .about-list {
-            list-style: none;
-            padding: 0;
-        }
-
+        .about-description { font-size:14px; line-height:1.8; color:var(--text-primary); margin-bottom:18px; }
+        .about-list { list-style:none; padding:0; }
         .about-list li {
-            padding: 6px 0;
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            padding:5px 0; font-size:13px; color:var(--text-secondary);
+            display:flex; align-items:center; gap:10px;
         }
-
-        .about-list li::before {
-            content: '▸';
-            color: var(--p4-yellow);
-            font-size: 14px;
-        }
-
-        .about-list li strong {
-            color: var(--zelda-green-light);
-        }
+        .about-list li::before { content:'▸'; color:var(--p4-yellow); font-size:14px; }
+        .about-list li strong { color:var(--zelda-green-light); }
 
         .hire-banner {
-            margin-top: 24px;
-            padding: 16px;
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(255, 215, 0, 0.1));
-            border: 1px solid var(--zelda-green);
-            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+            margin-top:22px; padding:14px;
+            background:linear-gradient(135deg,rgba(76,175,80,0.12),rgba(255,215,0,0.08));
+            border:1px solid var(--zelda-green);
+            clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));
+        }
+        .hire-banner p { font-size:12px; color:var(--zelda-green-light); line-height:1.6; }
+        .hire-banner a { color:var(--p4-yellow); text-decoration:none; font-weight:600; }
+        .hire-banner a:hover { text-decoration:underline; }
+
+        /* ===== SKILLS ===== */
+        #skills-window { top:90px; left:180px; width:550px; }
+
+        .skills-section { margin-bottom:26px; }
+        .skills-section-header {
+            display:flex; align-items:center; gap:10px;
+            margin-bottom:14px; padding-bottom:7px;
+            border-bottom:1px solid rgba(255,215,0,0.2);
+        }
+        .skills-section-header h3 {
+            font-family:'Press Start 2P',cursive; font-size:10px; color:var(--p4-yellow);
+        }
+        .learning-badge {
+            font-family:'JetBrains Mono',monospace; font-size:9px;
+            padding:3px 8px;
+            background:rgba(255,152,0,0.15); border:1px solid #FF9800; color:#FFCC80;
+            animation:pulse 2s infinite;
         }
 
-        .hire-banner p {
-            font-size: 13px;
-            color: var(--zelda-green-light);
-            line-height: 1.6;
-        }
-
-        .hire-banner a {
-            color: var(--p4-yellow);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .hire-banner a:hover {
-            text-decoration: underline;
-        }
-
-        /* ===== SKILLS WINDOW ===== */
-        #skills-window {
-            top: 100px;
-            left: 200px;
-            width: 560px;
-        }
-
-        .skills-section {
-            margin-bottom: 28px;
-        }
-
-        .skills-section h3 {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 11px;
-            color: var(--p4-yellow);
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .skill-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
+        .skill-tags { display:flex; flex-wrap:wrap; gap:7px; }
         .skill-tag {
-            padding: 6px 14px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            border: 1px solid;
-            clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
-            transition: all 0.3s;
+            padding:5px 13px;
+            font-family:'JetBrains Mono',monospace; font-size:11px;
+            border:1px solid; transition:all 0.3s; cursor:default;
+            clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px));
+        }
+        .skill-tag:hover { transform:translateY(-2px); }
+        .skill-tag.modeling { background:rgba(255,215,0,0.1); border-color:var(--p4-yellow); color:var(--p4-yellow); }
+        .skill-tag.animation { background:rgba(76,175,80,0.1); border-color:var(--zelda-green-light); color:var(--zelda-green-light); }
+        .skill-tag.illustration { background:rgba(233,30,99,0.1); border-color:#E91E63; color:#F48FB1; }
+        .skill-tag.programming { background:rgba(33,150,243,0.1); border-color:#2196F3; color:#90CAF9; }
+        .skill-tag.tools { background:rgba(255,152,0,0.1); border-color:#FF9800; color:#FFCC80; }
+        .skill-tag.video { background:rgba(156,39,176,0.1); border-color:#9C27B0; color:#CE93D8; }
+
+        /* ===== PROJECTS ===== */
+        #projects-window { top:70px; left:140px; width:640px; }
+
+        .project-tabs {
+            display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;
+        }
+        .proj-tab {
+            padding:7px 14px;
+            font-family:'Press Start 2P',cursive; font-size:8px;
+            border:1px solid rgba(255,215,0,0.3);
+            background:rgba(255,215,0,0.05);
+            color:var(--text-secondary); cursor:pointer;
+            transition:all 0.25s;
+            clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px));
+        }
+        .proj-tab:hover { background:rgba(255,215,0,0.1); color:var(--p4-yellow); }
+        .proj-tab.active {
+            background:rgba(255,215,0,0.18); border-color:var(--p4-yellow);
+            color:var(--p4-yellow);
         }
 
-        .skill-tag:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
+        .proj-category { display:none; }
+        .proj-category.active { display:block; }
 
-        .skill-tag.modeling {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: var(--p4-yellow);
-            color: var(--p4-yellow);
-        }
-
-        .skill-tag.animation {
-            background: rgba(76, 175, 80, 0.1);
-            border-color: var(--zelda-green-light);
-            color: var(--zelda-green-light);
-        }
-
-        .skill-tag.illustration {
-            background: rgba(233, 30, 99, 0.1);
-            border-color: #E91E63;
-            color: #F48FB1;
-        }
-
-        .skill-tag.programming {
-            background: rgba(33, 150, 243, 0.1);
-            border-color: #2196F3;
-            color: #90CAF9;
-        }
-
-        .skill-tag.tools {
-            background: rgba(255, 152, 0, 0.1);
-            border-color: #FF9800;
-            color: #FFCC80;
-        }
-
-        /* ===== PROJECTS WINDOW ===== */
-        #projects-window {
-            top: 80px;
-            left: 150px;
-            width: 620px;
-        }
-
-        .project-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
+        .project-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 
         .project-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,215,0,0.15);
+            padding:18px; cursor:pointer;
+            transition:all 0.3s;
+            clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));
         }
-
         .project-card:hover {
-            background: rgba(255, 215, 0, 0.05);
-            border-color: var(--p4-yellow);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            background:rgba(255,215,0,0.05); border-color:var(--p4-yellow);
+            transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.35);
         }
-
-        .project-card .project-type {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 8px;
-            color: var(--p4-yellow);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+        .project-preview {
+            width:100%; height:110px; background:var(--bg-light);
+            margin-bottom:11px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:38px; border:1px solid rgba(255,215,0,0.08);
+            overflow:hidden;
         }
-
-        .project-card .project-preview {
-            width: 100%;
-            height: 120px;
-            background: var(--bg-light);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            border: 1px solid rgba(255, 215, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .project-card h4 {
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 6px;
-        }
-
-        .project-card p {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .project-tags-small {
-            display: flex;
-            gap: 6px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
+        .project-card h4 { font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:5px; }
+        .project-card p { font-size:11px; color:var(--text-secondary); line-height:1.5; }
+        .project-tags-small { display:flex; gap:5px; margin-top:9px; flex-wrap:wrap; }
         .project-tags-small span {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
-            padding: 3px 8px;
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--p4-yellow);
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            font-family:'JetBrains Mono',monospace; font-size:9px;
+            padding:3px 7px; background:rgba(255,215,0,0.08);
+            color:var(--p4-yellow); border:1px solid rgba(255,215,0,0.2);
         }
 
-        /* ===== LINKS WINDOW ===== */
-        #links-window {
-            top: 120px;
-            right: 80px;
-            left: auto;
-            width: 400px;
-        }
-
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
+        /* ===== LINKS ===== */
+        #links-window { top:110px; right:70px; left:auto; width:390px; }
+        .links-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
         .link-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding: 20px 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+            display:flex; flex-direction:column; align-items:center; gap:8px;
+            padding:18px 10px; background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,215,0,0.15); cursor:pointer;
+            transition:all 0.3s; text-decoration:none;
+            clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
         }
-
-        .link-item:hover {
-            background: rgba(255, 215, 0, 0.08);
-            border-color: var(--p4-yellow);
-            transform: translateY(-3px);
-        }
-
-        .link-item .link-icon {
-            font-size: 32px;
-            transition: all 0.3s;
-        }
-
-        .link-item:hover .link-icon {
-            transform: scale(1.15);
-        }
-
-        .link-item span {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
+        .link-item:hover { background:rgba(255,215,0,0.08); border-color:var(--p4-yellow); transform:translateY(-3px); }
+        .link-item .link-icon { font-size:30px; transition:all 0.3s; }
+        .link-item:hover .link-icon { transform:scale(1.15); }
+        .link-item span { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-secondary); }
         .links-note {
-            margin-top: 16px;
-            padding: 12px;
-            background: rgba(76, 175, 80, 0.08);
-            border: 1px solid rgba(76, 175, 80, 0.2);
-            font-size: 11px;
-            color: var(--zelda-green-light);
-            text-align: center;
-            font-family: 'JetBrains Mono', monospace;
+            margin-top:14px; padding:10px;
+            background:rgba(76,175,80,0.07); border:1px solid rgba(76,175,80,0.2);
+            font-size:10px; color:var(--zelda-green-light);
+            text-align:center; font-family:'JetBrains Mono',monospace;
         }
 
-        /* ===== CONTACT WINDOW ===== */
-        #contact-window {
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 450px;
-        }
-
-        .contact-content {
-            text-align: center;
-        }
-
-        .contact-content h3 {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            color: var(--p4-yellow);
-            margin-bottom: 16px;
-        }
-
-        .contact-content p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .contact-chibi {
-            font-size: 80px;
-            margin: 20px 0;
-            display: block;
-        }
-
-        .contact-email {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .contact-email a {
-            color: var(--p4-yellow);
-            text-decoration: none;
-        }
-
-        .contact-email a:hover {
-            text-decoration: underline;
-        }
-
-        .contact-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 28px;
-            background: linear-gradient(135deg, var(--p4-yellow), var(--p4-yellow-dark));
-            color: #1a1a1a;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 10px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
-        }
-
-        .contact-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
-        }
-
-        .contact-methods {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 215, 0, 0.15);
-        }
-
-        .contact-method {
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        .contact-method:hover {
-            transform: translateY(-3px);
-        }
-
-        .contact-method .method-icon {
-            font-size: 28px;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .contact-method span {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--text-secondary);
-        }
-
-        /* ===== FAQ WINDOW ===== */
-        #faq-window {
-            top: 90px;
-            right: 60px;
-            left: auto;
-            width: 450px;
-        }
-
-        .faq-item {
-            margin-bottom: 8px;
-        }
-
+        /* ===== FAQ ===== */
+        #faq-window { top:80px; right:50px; left:auto; width:440px; }
+        .faq-item { margin-bottom:7px; }
         .faq-question {
-            width: 100%;
-            padding: 14px 18px;
-            background: linear-gradient(90deg, rgba(76, 175, 80, 0.15), rgba(255, 215, 0, 0.08));
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            color: var(--zelda-green-light);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+            width:100%; padding:13px 16px;
+            background:linear-gradient(90deg,rgba(76,175,80,0.13),rgba(255,215,0,0.07));
+            border:1px solid rgba(76,175,80,0.3);
+            color:var(--zelda-green-light);
+            font-family:'JetBrains Mono',monospace; font-size:11px;
+            text-align:left; cursor:pointer;
+            display:flex; justify-content:space-between; align-items:center;
+            transition:all 0.25s;
+            clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
         }
-
-        .faq-question:hover {
-            background: linear-gradient(90deg, rgba(76, 175, 80, 0.25), rgba(255, 215, 0, 0.15));
-        }
-
-        .faq-question .arrow {
-            transition: transform 0.3s;
-            font-size: 14px;
-        }
-
-        .faq-question.open .arrow {
-            transform: rotate(180deg);
-        }
-
+        .faq-question:hover { background:linear-gradient(90deg,rgba(76,175,80,0.22),rgba(255,215,0,0.13)); }
+        .faq-question .arrow { transition:transform 0.3s; }
+        .faq-question.open .arrow { transform:rotate(180deg); }
         .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(76, 175, 80, 0.1);
-            border-top: none;
+            max-height:0; overflow:hidden;
+            transition:max-height 0.35s ease-out;
+            background:rgba(0,0,0,0.2); border:1px solid rgba(76,175,80,0.1); border-top:none;
         }
+        .faq-answer.open { max-height:200px; }
+        .faq-answer p { padding:12px 16px; font-size:12px; color:var(--text-secondary); line-height:1.7; }
 
-        .faq-answer.open {
-            max-height: 200px;
+        /* ===== CONTACT ===== */
+        #contact-window { top:100px; left:50%; transform:translateX(-50%); width:440px; }
+        .contact-content { text-align:center; }
+        .contact-content h3 { font-family:'Press Start 2P',cursive; font-size:13px; color:var(--p4-yellow); margin-bottom:14px; }
+        .contact-content p { font-size:12px; color:var(--text-secondary); line-height:1.7; margin-bottom:20px; }
+        .contact-chibi { font-size:70px; margin:16px 0; display:block; }
+        .contact-email { font-family:'JetBrains Mono',monospace; font-size:13px; margin-bottom:6px; }
+        .contact-email a { color:var(--p4-yellow); text-decoration:none; }
+        .contact-email a:hover { text-decoration:underline; }
+        .contact-btn {
+            display:inline-block; margin-top:18px; padding:11px 26px;
+            background:linear-gradient(135deg,var(--p4-yellow),var(--p4-yellow-dark));
+            color:#1a1a1a; font-family:'Press Start 2P',cursive; font-size:9px;
+            border:none; cursor:pointer; transition:all 0.3s; text-decoration:none;
+            clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
         }
-
-        .faq-answer p {
-            padding: 14px 18px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.7;
+        .contact-btn:hover { transform:scale(1.05); box-shadow:0 4px 20px rgba(255,215,0,0.3); }
+        .contact-methods {
+            display:flex; justify-content:center; gap:18px;
+            margin-top:22px; padding-top:18px;
+            border-top:1px solid rgba(255,215,0,0.15);
         }
-
-        /* ===== PERSONA 4 CARD REVEAL ===== */
-        .p4-card {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 280px;
-            background: linear-gradient(135deg, var(--p4-yellow), #FFE44D);
-            z-index: 10000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            color: #1a1a1a;
-            animation: cardSlam 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            clip-path: polygon(5% 0, 95% 0, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0 95%, 0 5%);
-            box-shadow: 0 0 60px rgba(255, 215, 0, 0.5);
+        .contact-method {
+            text-align:center; text-decoration:none;
+            transition:all 0.3s; display:flex; flex-direction:column; align-items:center; gap:6px;
         }
+        .contact-method:hover { transform:translateY(-3px); }
+        .contact-method .method-icon { font-size:26px; display:block; }
+        .contact-method span { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-secondary); }
 
-        @keyframes cardSlam {
-            0% { transform: translate(-50%, -50%) scale(3) rotate(15deg); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.1) rotate(-2deg); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        /* ===== CHIBI MASCOT ===== */
+        .chibi-mascot {
+            position:fixed; bottom:58px; right:18px;
+            width:75px; height:75px; z-index:999;
+            cursor:pointer; transition:transform 0.3s;
+            animation:chibiFloat 3s ease-in-out infinite;
         }
+        .chibi-mascot:hover { transform:scale(1.15) rotate(-5deg); animation:none; }
+        @keyframes chibiFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+        .chibi-svg { width:100%; height:100%; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .desktop-icons {
-                flex-direction: row;
-                flex-wrap: wrap;
-                top: 10px;
-                left: 10px;
-                right: 10px;
-            }
-
-            .desktop-icon {
-                width: 70px;
-            }
-
-            .window {
-                min-width: 300px !important;
-                width: calc(100vw - 20px) !important;
-                left: 10px !important;
-                right: 10px !important;
-                top: 60px !important;
-                transform: none !important;
-            }
-
-            .project-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .home-content .name {
-                font-size: 20px;
-            }
-
-            .taskbar-items {
-                display: none;
-            }
+        /* ===== TASKBAR ===== */
+        .taskbar {
+            position:fixed; bottom:0; left:0; width:100%; height:46px;
+            background:linear-gradient(180deg,#2a2a2a,#181818);
+            border-top:2px solid var(--p4-yellow);
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 10px; z-index:1000;
+            box-shadow:0 -4px 20px rgba(0,0,0,0.5);
         }
-
-        /* ===== LOADING SCREEN ===== */
-        .loading-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #0a0a0a;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s, visibility 0.5s;
+        .taskbar-left { display:flex; align-items:center; gap:6px; }
+        .start-btn {
+            background:linear-gradient(180deg,var(--p4-yellow),var(--p4-yellow-dark));
+            border:none; color:#1a1a1a;
+            font-family:'Press Start 2P',cursive; font-size:8px;
+            padding:7px 14px; cursor:pointer;
+            display:flex; align-items:center; gap:6px;
+            transition:all 0.2s;
+            clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
         }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
+        .start-btn:hover { background:linear-gradient(180deg,#FFE44D,var(--p4-yellow)); transform:scale(1.04); }
+        .taskbar-items { display:flex; gap:4px; flex:1; padding:0 10px; }
+        .taskbar-item {
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,215,0,0.2);
+            color:var(--text-secondary);
+            font-family:'JetBrains Mono',monospace; font-size:10px;
+            padding:5px 12px; cursor:pointer; transition:all 0.2s;
+            max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
         }
-
-        .loading-text {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            color: var(--p4-yellow);
-            margin-bottom: 30px;
-            animation: loadingBlink 1s infinite;
+        .taskbar-item:hover { background:rgba(255,215,0,0.1); }
+        .taskbar-item.active { background:rgba(255,215,0,0.15); border-color:var(--p4-yellow); color:var(--p4-yellow); }
+        .taskbar-right {
+            display:flex; align-items:center; gap:10px;
+            font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-secondary);
         }
-
-        @keyframes loadingBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        .taskbar-social { display:flex; gap:7px; padding-right:6px; }
+        .taskbar-social a {
+            color:var(--text-secondary); text-decoration:none;
+            font-size:15px; transition:all 0.3s; display:flex; align-items:center;
         }
+        .taskbar-social a:hover { color:var(--p4-yellow); transform:translateY(-2px); }
+        .taskbar-clock { padding:4px 9px; border-left:1px solid rgba(255,255,255,0.1); font-size:10px; }
 
-        .loading-bar {
-            width: 300px;
-            height: 6px;
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid var(--p4-yellow);
-            overflow: hidden;
-        }
-
-        .loading-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--p4-yellow);
-            transition: width 0.3s;
-            animation: loadingFill 2s ease-in-out forwards;
-        }
-
-        @keyframes loadingFill {
-            0% { width: 0%; }
-            30% { width: 30%; }
-            60% { width: 70%; }
-            100% { width: 100%; }
-        }
-
-        .loading-triforce {
-            margin-bottom: 20px;
-            font-size: 40px;
-            color: var(--p4-yellow);
-            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-            animation: triforceGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes triforceGlow {
-            0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-            50% { text-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
-        }
-
-        /* SVG Icons inline */
-        .svg-icon {
-            width: 36px;
-            height: 36px;
-            fill: currentColor;
-        }
-
-        /* Status text */
-        .status-available {
-            display: inline-block;
-            padding: 4px 10px;
-            background: rgba(76, 175, 80, 0.15);
-            border: 1px solid var(--zelda-green);
-            color: var(--zelda-green-light);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { border-color: var(--zelda-green); }
-            50% { border-color: var(--zelda-green-light); box-shadow: 0 0 10px rgba(76, 175, 80, 0.3); }
+        /* Mobile */
+        @media(max-width:768px){
+            .desktop-icons{flex-direction:row;flex-wrap:wrap;top:8px;left:8px;right:8px;}
+            .desktop-icon{width:65px;}
+            .window{min-width:280px!important;width:calc(100vw - 16px)!important;left:8px!important;right:8px!important;top:55px!important;transform:none!important;}
+            .project-grid{grid-template-columns:1fr;}
+            .taskbar-items{display:none;}
+            .home-content .name{font-size:18px;}
         }
     </style>
 </head>
 <body>
 
-    <!-- LOADING SCREEN -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-triforce">▲</div>
-        <div class="loading-text">carregando portfolio...</div>
-        <div class="loading-bar">
-            <div class="loading-bar-fill"></div>
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-triforce">▲</div>
+    <div class="loading-text">carregando...</div>
+    <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<div class="tv-static" id="tvStatic"></div>
+<div class="scanline-overlay"></div>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" id="themeToggle" title="Alternar dia/noite" onclick="toggleTheme()">🌙</button>
+
+<!-- BACKGROUND -->
+<div class="bg-scene">
+    <div class="bg-night-gradient"></div>
+    <div class="bg-day-gradient"></div>
+
+    <!-- NIGHT elements -->
+    <div class="cel-moon"></div>
+    <div class="stars-layer" id="starsLayer"></div>
+
+    <div class="night-mountains">
+        <!-- Mountain 1 -->
+        <div class="cel-mountain" style="left:-2%;border-width:0 220px 280px 220px;border-color:transparent transparent #0d2218 transparent;">
+            <div style="position:absolute;top:0;left:-100px;width:0;height:0;border-style:solid;border-width:0 100px 220px 120px;border-color:transparent transparent #0f2a1e transparent;"></div>
+        </div>
+        <!-- Mountain 2 -->
+        <div class="cel-mountain" style="left:18%;border-width:0 270px 360px 250px;border-color:transparent transparent #0a1d14 transparent;"></div>
+        <!-- Mountain 3 -->
+        <div class="cel-mountain" style="left:42%;border-width:0 300px 320px 280px;border-color:transparent transparent #0e2419 transparent;"></div>
+        <!-- Mountain 4 -->
+        <div class="cel-mountain" style="left:67%;border-width:0 250px 390px 290px;border-color:transparent transparent #091911 transparent;"></div>
+        <!-- Mountain 5 -->
+        <div class="cel-mountain" style="left:87%;border-width:0 220px 260px 190px;border-color:transparent transparent #0c2016 transparent;"></div>
+    </div>
+
+    <!-- Cel-shaded trees -->
+    <div class="night-trees">
+        <div class="cel-tree" style="left:6%">
+            <div class="foliage-top" style="border-width:0 18px 28px 18px;border-color:transparent transparent #0f3d1f transparent;"></div>
+            <div class="foliage-mid" style="border-width:0 26px 36px 26px;border-color:transparent transparent #0d3318 transparent;"></div>
+            <div class="foliage-bot" style="border-width:0 34px 44px 34px;border-color:transparent transparent #0b2914 transparent;"></div>
+            <div class="trunk"></div>
+        </div>
+        <div class="cel-tree" style="left:11%">
+            <div class="foliage-top" style="border-width:0 14px 22px 14px;border-color:transparent transparent #113d22 transparent;"></div>
+            <div class="foliage-mid" style="border-width:0 22px 30px 22px;border-color:transparent transparent #0e331a transparent;"></div>
+            <div class="foliage-bot" style="border-width:0 28px 36px 28px;border-color:transparent transparent #0c2916 transparent;"></div>
+            <div class="trunk" style="height:20px;"></div>
+        </div>
+        <div class="cel-tree" style="left:88%">
+            <div class="foliage-top" style="border-width:0 16px 25px 16px;border-color:transparent transparent #103a20 transparent;"></div>
+            <div class="foliage-mid" style="border-width:0 24px 32px 24px;border-color:transparent transparent #0d3018 transparent;"></div>
+            <div class="foliage-bot" style="border-width:0 30px 40px 30px;border-color:transparent transparent #0b2614 transparent;"></div>
+            <div class="trunk"></div>
+        </div>
+        <div class="cel-tree" style="left:93%">
+            <div class="foliage-top" style="border-width:0 13px 20px 13px;border-color:transparent transparent #12401f transparent;"></div>
+            <div class="foliage-mid" style="border-width:0 20px 28px 20px;border-color:transparent transparent #0f361a transparent;"></div>
+            <div class="foliage-bot" style="border-width:0 26px 34px 26px;border-color:transparent transparent #0d2c16 transparent;"></div>
+            <div class="trunk" style="height:22px;"></div>
         </div>
     </div>
 
-    <!-- TV STATIC -->
-    <div class="tv-static" id="tvStatic"></div>
-    <div class="scanline-overlay"></div>
+    <div class="fog" style="position:absolute;bottom:18%;width:200%;height:70px;background:linear-gradient(90deg,transparent,rgba(100,200,120,0.04),rgba(100,200,120,0.08),rgba(100,200,120,0.04),transparent);animation:fogMove 22s ease-in-out infinite;"></div>
+    <div class="fog fog-2" style="position:absolute;bottom:24%;width:200%;height:50px;background:linear-gradient(90deg,transparent,rgba(100,200,120,0.04),rgba(100,200,120,0.06),rgba(100,200,120,0.04),transparent);animation:fogMove 28s ease-in-out infinite;animation-delay:-9s;"></div>
+    @keyframes fogMove { 0%,100%{transform:translateX(-25%)} 50%{transform:translateX(0%)} }
 
-    <!-- BACKGROUND SCENE -->
-    <div class="bg-scene">
-        <div class="bg-gradient"></div>
-        <div class="stars" id="stars"></div>
-        <div class="mountains">
-            <div class="mountain mountain-1"></div>
-            <div class="mountain mountain-2"></div>
-            <div class="mountain mountain-3"></div>
-            <div class="mountain mountain-4"></div>
-            <div class="mountain mountain-5"></div>
-        </div>
-        <div class="fog fog-1"></div>
-        <div class="fog fog-2"></div>
-        <div class="ground"></div>
-        <!-- Fireflies -->
-        <div class="firefly" style="left: 15%; top: 55%; animation-delay: 0s;"></div>
-        <div class="firefly" style="left: 35%; top: 48%; animation-delay: 2s;"></div>
-        <div class="firefly" style="left: 55%; top: 60%; animation-delay: 4s;"></div>
-        <div class="firefly" style="left: 75%; top: 52%; animation-delay: 1s;"></div>
-        <div class="firefly" style="left: 85%; top: 65%; animation-delay: 3s;"></div>
-        <div class="firefly" style="left: 25%; top: 70%; animation-delay: 5s;"></div>
-        <div class="firefly" style="left: 45%; top: 45%; animation-delay: 6s;"></div>
-        <div class="firefly" style="left: 65%; top: 55%; animation-delay: 2.5s;"></div>
+    <div class="night-ground"></div>
+
+    <!-- Fireflies -->
+    <div class="firefly" style="left:16%;top:55%;animation-delay:0s;"></div>
+    <div class="firefly" style="left:30%;top:50%;animation-delay:2s;"></div>
+    <div class="firefly" style="left:52%;top:58%;animation-delay:4s;"></div>
+    <div class="firefly" style="left:68%;top:52%;animation-delay:1.5s;"></div>
+    <div class="firefly" style="left:82%;top:62%;animation-delay:3s;"></div>
+    <div class="firefly" style="left:44%;top:47%;animation-delay:5.5s;"></div>
+    <div class="firefly" style="left:73%;top:56%;animation-delay:2.5s;"></div>
+
+    <!-- DAY elements -->
+    <div class="day-sun"></div>
+    <div class="day-cloud" style="width:120px;height:40px;top:15%;animation-duration:28s;">
+        <div style="width:60px;height:60px;background:rgba(255,255,255,0.85);border-radius:50%;position:absolute;top:-25px;left:20px;"></div>
+        <div style="width:45px;height:45px;background:rgba(255,255,255,0.85);border-radius:50%;position:absolute;top:-15px;left:55px;"></div>
+    </div>
+    <div class="day-cloud" style="width:90px;height:30px;top:22%;animation-duration:40s;animation-delay:-15s;">
+        <div style="width:50px;height:50px;background:rgba(255,255,255,0.85);border-radius:50%;position:absolute;top:-20px;left:10px;"></div>
+        <div style="width:35px;height:35px;background:rgba(255,255,255,0.85);border-radius:50%;position:absolute;top:-10px;left:45px;"></div>
+    </div>
+    <div class="day-cloud" style="width:150px;height:45px;top:10%;animation-duration:55s;animation-delay:-30s;">
+        <div style="width:70px;height:70px;background:rgba(255,255,255,0.85);border-radius:50%;position:absolute;top:-30px;left:30px;"></div>
+        <div style="width:55px;height:55px;background:rgba(255,255,255,0.85);border-radius:50%;position:absolute;top:-20px;left:80px;"></div>
     </div>
 
-    <!-- DESKTOP ICONS -->
-    <div class="desktop-icons">
-        <div class="desktop-icon" onclick="openWindow('home')">
-            <div class="icon-img">🏠</div>
-            <span>home</span>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('about')">
-            <div class="icon-img">📋</div>
-            <span>sobre</span>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('skills')">
-            <div class="icon-img">⚔️</div>
-            <span>skills</span>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('projects')">
-            <div class="icon-img">📁</div>
-            <span>projetos</span>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('links')">
-            <div class="icon-img">🔗</div>
-            <span>links</span>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('faq')">
-            <div class="icon-img">❓</div>
-            <span>faq</span>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('contact')">
-            <div class="icon-img">✉️</div>
-            <span>contato</span>
+    <div class="day-shore"></div>
+
+    <div class="day-ocean">
+        <div class="ocean-deep"></div>
+        <div class="ocean-wave" style="top:0;"></div>
+        <div class="ocean-wave"></div>
+        <div class="ocean-wave"></div>
+    </div>
+</div>
+
+<!-- DESKTOP ICONS -->
+<div class="desktop-icons">
+    <div class="desktop-icon" id="icon-home" onclick="toggleWindow('home')">
+        <div class="icon-img">🏠</div><span>home</span>
+    </div>
+    <div class="desktop-icon" id="icon-about" onclick="toggleWindow('about')">
+        <div class="icon-img">📋</div><span>sobre</span>
+    </div>
+    <div class="desktop-icon" id="icon-skills" onclick="toggleWindow('skills')">
+        <div class="icon-img">⚔️</div><span>skills</span>
+    </div>
+    <div class="desktop-icon" id="icon-projects" onclick="toggleWindow('projects')">
+        <div class="icon-img">📁</div><span>projetos</span>
+    </div>
+    <div class="desktop-icon" id="icon-links" onclick="toggleWindow('links')">
+        <div class="icon-img">🔗</div><span>links</span>
+    </div>
+    <div class="desktop-icon" id="icon-faq" onclick="toggleWindow('faq')">
+        <div class="icon-img">❓</div><span>faq</span>
+    </div>
+    <div class="desktop-icon" id="icon-contact" onclick="toggleWindow('contact')">
+        <div class="icon-img">✉️</div><span>contato</span>
+    </div>
+</div>
+
+<!-- ======= WINDOWS ======= -->
+
+<!-- HOME -->
+<div class="window visible" id="home-window">
+    <div class="window-header" onmousedown="startDrag(event,'home-window')">
+        <div class="window-title">▲ home</div>
+        <div class="window-controls">
+            <button class="close-btn" onclick="closeWindow('home')">✕</button>
         </div>
     </div>
-
-    <!-- ===== WINDOWS ===== -->
-
-    <!-- HOME WINDOW -->
-    <div class="window visible" id="home-window">
-        <div class="window-header" onmousedown="startDrag(event, 'home-window')">
-            <div class="window-title">▲ home</div>
-            <div class="window-controls">
-                <button class="close-btn" onclick="closeWindow('home')">✕</button>
-            </div>
-        </div>
-        <div class="window-body">
-            <div class="home-content">
-                <p class="greeting">olá! eu sou</p>
-                <h1 class="name">SEU NOME</h1>
-                <p class="subtitle">modelador · animador · ilustrador · programador</p>
-                <span class="status-available">● disponível para trabalho</span>
-                <div class="home-nav" style="margin-top: 32px;">
-                    <div class="home-nav-item" onclick="openWindow('about')">
-                        <span class="nav-icon">ℹ️</span>
-                        <span class="nav-label">sobre</span>
-                    </div>
-                    <div class="home-nav-item" onclick="openWindow('skills')">
-                        <span class="nav-icon">⚔️</span>
-                        <span class="nav-label">skills</span>
-                    </div>
-                    <div class="home-nav-item" onclick="openWindow('projects')">
-                        <span class="nav-icon">📁</span>
-                        <span class="nav-label">projetos</span>
-                    </div>
-                    <div class="home-nav-item" onclick="openWindow('links')">
-                        <span class="nav-icon">🔗</span>
-                        <span class="nav-label">links</span>
-                    </div>
-                    <div class="home-nav-item" onclick="openWindow('contact')">
-                        <span class="nav-icon">✉️</span>
-                        <span class="nav-label">contato</span>
-                    </div>
+    <div class="window-body">
+        <div class="home-content">
+            <p class="greeting">olá! eu sou</p>
+            <h1 class="name">KAIQUE</h1>
+            <p class="nick">// Fuuji</p>
+            <p class="subtitle">modelador · ilustrador · programador</p>
+            <span class="status-available">● disponível para trabalho</span>
+            <div class="home-nav">
+                <div class="home-nav-item" onclick="toggleWindow('about')">
+                    <span class="nav-icon">ℹ️</span><span class="nav-label">sobre</span>
+                </div>
+                <div class="home-nav-item" onclick="toggleWindow('skills')">
+                    <span class="nav-icon">⚔️</span><span class="nav-label">skills</span>
+                </div>
+                <div class="home-nav-item" onclick="toggleWindow('projects')">
+                    <span class="nav-icon">📁</span><span class="nav-label">projetos</span>
+                </div>
+                <div class="home-nav-item" onclick="toggleWindow('links')">
+                    <span class="nav-icon">🔗</span><span class="nav-label">links</span>
+                </div>
+                <div class="home-nav-item" onclick="toggleWindow('contact')">
+                    <span class="nav-icon">✉️</span><span class="nav-label">contato</span>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- ABOUT WINDOW -->
-    <div class="window" id="about-window">
-        <div class="window-header" onmousedown="startDrag(event, 'about-window')">
-            <div class="window-title">📋 sobre mim</div>
-            <div class="window-controls">
-                <button class="close-btn" onclick="closeWindow('about')">✕</button>
-            </div>
-        </div>
-        <div class="window-body">
-            <div class="about-header-info">
-                <div class="about-avatar">🧑‍🎨</div>
-                <div class="about-name-info">
-                    <h2>Seu Nome</h2>
-                    <p>Artista 3D, Animador & Desenvolvedor</p>
-                    <p style="font-size: 11px; color: var(--zelda-green-light);">Brasil · Disponível CLT/PJ</p>
-                </div>
-            </div>
-
-            <div class="about-description">
-                oi! sou um artista multidisciplinar apaixonado por criar mundos e experiências visuais. eu...
-            </div>
-
-            <ul class="about-list">
-                <li>crio <strong>modelos 3D low poly</strong> e estilizados</li>
-                <li>faço <strong>animações 2D e 3D</strong> para jogos e mídia</li>
-                <li>crio <strong>ilustrações</strong> digitais e concept art</li>
-                <li>desenvolvo <strong>aplicações web</strong> e ferramentas</li>
-                <li>amo <strong>Zelda, Final Fantasy, Persona</strong> e jogos em geral</li>
-            </ul>
-
-            <div class="hire-banner">
-                <p>🌿 <strong>Disponível para contratação!</strong> Aceito propostas CLT e PJ. 
-                Faço ilustração, modelagem 3D, animação e desenvolvimento web. 
-                <a href="mailto:seuemail@email.com">Entre em contato →</a></p>
-            </div>
+<!-- ABOUT -->
+<div class="window" id="about-window">
+    <div class="window-header" onmousedown="startDrag(event,'about-window')">
+        <div class="window-title">📋 sobre mim</div>
+        <div class="window-controls">
+            <button class="close-btn" onclick="closeWindow('about')">✕</button>
         </div>
     </div>
-
-    <!-- SKILLS WINDOW -->
-    <div class="window" id="skills-window">
-        <div class="window-header" onmousedown="startDrag(event, 'skills-window')">
-            <div class="window-title">⚔️ habilidades</div>
-            <div class="window-controls">
-                <button class="close-btn" onclick="closeWindow('skills')">✕</button>
+    <div class="window-body">
+        <div class="about-header-info">
+            <!--
+            ╔══════════════════════════════════════════════════════╗
+            ║  SUA FOTO AQUI!                                      ║
+            ║  Para adicionar sua foto, troque o emoji abaixo      ║
+            ║  pela tag:                                           ║
+            ║  <img src="sua-foto.png" alt="Fuuji"                 ║
+            ║       style="width:100%;height:100%;                 ║
+            ║              object-fit:cover;">                     ║
+            ║  Coloque a imagem na mesma pasta do HTML.            ║
+            ╚══════════════════════════════════════════════════════╝
+            -->
+            <div class="about-avatar">🧑‍🎨</div>
+            <div class="about-name-info">
+                <h2>Kaique</h2>
+                <div class="nick-tag">// Fuuji</div>
+                <p>Modelador · Ilustrador · Programador</p>
+                <p style="font-size:11px;color:var(--zelda-green-light);margin-top:4px;">Rio de Janeiro, Brasil · Disponível CLT/PJ</p>
             </div>
         </div>
-        <div class="window-body">
-            <div class="skills-section">
+
+        <div class="about-description">
+            Oi! me chamo Kaique, Sou do Rio de janeiro/Brasil, amo programar e desenhar, seja bem vindo!
+        </div>
+
+        <ul class="about-list">
+            <li>crio <strong>modelos 3D low poly</strong> e estilizados</li>
+            <li>crio <strong>ilustrações</strong> digitais e character design</li>
+            <li>desenvolvo <strong>aplicações web</strong> e ferramentas</li>
+            <li>amo <strong>Zelda, Final Fantasy, Persona 4</strong> e jogos em geral</li>
+        </ul>
+
+        <div class="hire-banner">
+            <p>🌿 <strong>Disponível para contratação!</strong> Aceito propostas CLT e PJ.
+            Faço modelagem 3D, ilustração e desenvolvimento web.
+            <a href="mailto:seuemail@email.com">Entre em contato →</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- SKILLS -->
+<div class="window" id="skills-window">
+    <div class="window-header" onmousedown="startDrag(event,'skills-window')">
+        <div class="window-title">⚔️ habilidades</div>
+        <div class="window-controls">
+            <button class="close-btn" onclick="closeWindow('skills')">✕</button>
+        </div>
+    </div>
+    <div class="window-body">
+
+        <div class="skills-section">
+            <div class="skills-section-header">
                 <h3>🎲 modelagem 3d</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag modeling">Blender</span>
-                    <span class="skill-tag modeling">ZBrush</span>
-                    <span class="skill-tag modeling">Maya</span>
-                    <span class="skill-tag modeling">Low Poly</span>
-                    <span class="skill-tag modeling">Hard Surface</span>
-                    <span class="skill-tag modeling">Sculpting</span>
-                    <span class="skill-tag modeling">UV Mapping</span>
-                    <span class="skill-tag modeling">Substance Painter</span>
-                </div>
             </div>
+            <div class="skill-tags">
+                <span class="skill-tag modeling">Blender</span>
+                <span class="skill-tag modeling">Low Poly</span>
+                <span class="skill-tag modeling">Hard Surface</span>
+                <span class="skill-tag modeling">UV Mapping</span>
+                <span class="skill-tag modeling">Substance Painter</span>
+            </div>
+        </div>
 
-            <div class="skills-section">
+        <div class="skills-section">
+            <div class="skills-section-header">
                 <h3>🎬 animação</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag animation">Animação 2D</span>
-                    <span class="skill-tag animation">Animação 3D</span>
-                    <span class="skill-tag animation">Rigging</span>
-                    <span class="skill-tag animation">Motion Graphics</span>
-                    <span class="skill-tag animation">After Effects</span>
-                    <span class="skill-tag animation">Spine</span>
-                </div>
+                <span class="learning-badge">em aprendizagem</span>
             </div>
+            <div class="skill-tags">
+                <span class="skill-tag animation">Animação 2D</span>
+                <span class="skill-tag animation">Animação 3D</span>
+                <span class="skill-tag animation">Rigging</span>
+                <span class="skill-tag animation">Motion Graphics</span>
+                <span class="skill-tag animation">After Effects</span>
+            </div>
+        </div>
 
-            <div class="skills-section">
+        <div class="skills-section">
+            <div class="skills-section-header">
                 <h3>🎨 ilustração</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag illustration">Concept Art</span>
-                    <span class="skill-tag illustration">Character Design</span>
-                    <span class="skill-tag illustration">Chibi Art</span>
-                    <span class="skill-tag illustration">Clip Studio Paint</span>
-                    <span class="skill-tag illustration">Photoshop</span>
-                    <span class="skill-tag illustration">Procreate</span>
-                </div>
+                <span class="learning-badge">em aprendizagem</span>
             </div>
+            <div class="skill-tags">
+                <span class="skill-tag illustration">Concept Art</span>
+                <span class="skill-tag illustration">Character Design</span>
+                <span class="skill-tag illustration">Chibi Art</span>
+                <span class="skill-tag illustration">Clip Studio Paint</span>
+                <span class="skill-tag illustration">Photoshop</span>
+            </div>
+        </div>
 
-            <div class="skills-section">
+        <div class="skills-section">
+            <div class="skills-section-header">
                 <h3>💻 programação</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag programming">JavaScript</span>
-                    <span class="skill-tag programming">Python</span>
-                    <span class="skill-tag programming">C#</span>
-                    <span class="skill-tag programming">HTML/CSS</span>
-                    <span class="skill-tag programming">React</span>
-                    <span class="skill-tag programming">Unity</span>
-                    <span class="skill-tag programming">Three.js</span>
-                    <span class="skill-tag programming">Node.js</span>
-                </div>
             </div>
+            <div class="skill-tags">
+                <span class="skill-tag programming">JavaScript</span>
+                <span class="skill-tag programming">Python</span>
+                <span class="skill-tag programming">Java</span>
+                <span class="skill-tag programming">C#</span>
+                <span class="skill-tag programming">HTML/CSS</span>
+                <span class="skill-tag programming">React</span>
+                <span class="skill-tag programming">Unity</span>
+                <span class="skill-tag programming">Three.js</span>
+                <span class="skill-tag programming">Node.js</span>
+            </div>
+        </div>
 
-            <div class="skills-section">
+        <div class="skills-section">
+            <div class="skills-section-header">
                 <h3>🔧 ferramentas</h3>
-                <div class="skill-tags">
-                    <span class="skill-tag tools">Git/GitHub</span>
-                    <span class="skill-tag tools">Figma</span>
-                    <span class="skill-tag tools">VS Code</span>
-                    <span class="skill-tag tools">Premiere Pro</span>
-                    <span class="skill-tag tools">DaVinci Resolve</span>
-                </div>
             </div>
+            <div class="skill-tags">
+                <span class="skill-tag tools">Git/GitHub</span>
+                <span class="skill-tag tools">Figma</span>
+                <span class="skill-tag tools">VS Code</span>
+                <span class="skill-tag tools">Premiere Pro</span>
+                <span class="skill-tag tools">DaVinci Resolve</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- PROJECTS -->
+<div class="window" id="projects-window">
+    <div class="window-header" onmousedown="startDrag(event,'projects-window')">
+        <div class="window-title">📁 projetos</div>
+        <div class="window-controls">
+            <button class="close-btn" onclick="closeWindow('projects')">✕</button>
         </div>
     </div>
+    <div class="window-body">
 
-    <!-- PROJECTS WINDOW -->
-    <div class="window" id="projects-window">
-        <div class="window-header" onmousedown="startDrag(event, 'projects-window')">
-            <div class="window-title">📁 projetos</div>
-            <div class="window-controls">
-                <button class="close-btn" onclick="closeWindow('projects')">✕</button>
-            </div>
+        <div class="hire-banner" style="margin-bottom:18px;margin-top:0;">
+            <p>🎯 <strong>Aceitando propostas!</strong> Modelagem 3D, ilustração, dev web/app e edição de vídeo.</p>
         </div>
-        <div class="window-body">
-            <div class="hire-banner" style="margin-bottom: 20px; margin-top: 0;">
-                <p>🎯 <strong>Aceitando propostas!</strong> Faço modelagem 3D, animação, ilustração e dev web/app.</p>
-            </div>
 
+        <!-- Category Tabs -->
+        <div class="project-tabs">
+            <button class="proj-tab active" onclick="switchCategory('modelagem',this)">🎲 Modelagem</button>
+            <button class="proj-tab" onclick="switchCategory('animacao',this)">🎬 Animação</button>
+            <button class="proj-tab" onclick="switchCategory('ilustracao',this)">🎨 Ilustração</button>
+            <button class="proj-tab" onclick="switchCategory('dev',this)">💻 Dev</button>
+            <button class="proj-tab" onclick="switchCategory('video',this)">🎥 Vídeo</button>
+        </div>
+
+        <!-- Modelagem -->
+        <div class="proj-category active" id="cat-modelagem">
             <div class="project-grid">
                 <div class="project-card">
-                    <div class="project-type">🎲 modelagem 3d</div>
                     <div class="project-preview">🏔️</div>
                     <h4>Cenário Low Poly Fantasy</h4>
                     <p>Ambiente inspirado em Zelda com estilo low poly e iluminação suave</p>
                     <div class="project-tags-small">
-                        <span>Blender</span>
-                        <span>Low Poly</span>
-                        <span>Cenário</span>
+                        <span>Blender</span><span>Low Poly</span><span>Cenário</span>
                     </div>
                 </div>
-
                 <div class="project-card">
-                    <div class="project-type">🎬 animação</div>
+                    <div class="project-preview">🗡️</div>
+                    <h4>Props de Game</h4>
+                    <p>Coleção de props estilizados — espadas, itens mágicos e equipamentos</p>
+                    <div class="project-tags-small">
+                        <span>Blender</span><span>Texturing</span><span>Game Art</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">🏰</div>
+                    <h4>Dungeon Environment</h4>
+                    <p>Cenário de dungeon com iluminação cel shading e estética de RPG</p>
+                    <div class="project-tags-small">
+                        <span>Blender</span><span>Cel Shading</span><span>RPG</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">🌿</div>
+                    <h4>Nature Pack</h4>
+                    <p>Pack de assets natureza low poly — árvores, pedras, flores e água</p>
+                    <div class="project-tags-small">
+                        <span>Blender</span><span>Assets</span><span>Natureza</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animação -->
+        <div class="proj-category" id="cat-animacao">
+            <div class="project-grid">
+                <div class="project-card">
                     <div class="project-preview">🐉</div>
                     <h4>Animação de Personagem</h4>
                     <p>Ciclo de animação de personagem chibi em estilo RPG</p>
                     <div class="project-tags-small">
-                        <span>After Effects</span>
-                        <span>2D</span>
-                        <span>Chibi</span>
+                        <span>After Effects</span><span>2D</span><span>Chibi</span>
                     </div>
                 </div>
-
                 <div class="project-card">
-                    <div class="project-type">🎨 ilustração</div>
+                    <div class="project-preview">🌟</div>
+                    <h4>Motion Reel 2025</h4>
+                    <p>Compilação de motion graphics e animações do ano</p>
+                    <div class="project-tags-small">
+                        <span>After Effects</span><span>Motion</span><span>Blender</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ilustração -->
+        <div class="proj-category" id="cat-ilustracao">
+            <div class="project-grid">
+                <div class="project-card">
                     <div class="project-preview">⚔️</div>
                     <h4>Fan Art RPG Series</h4>
                     <p>Série de ilustrações inspiradas em FF e Persona em estilo chibi</p>
                     <div class="project-tags-small">
-                        <span>CSP</span>
-                        <span>Digital</span>
-                        <span>Character</span>
+                        <span>CSP</span><span>Digital</span><span>Chibi</span>
                     </div>
                 </div>
-
                 <div class="project-card">
-                    <div class="project-type">💻 desenvolvimento</div>
+                    <div class="project-preview">🧝</div>
+                    <h4>Character Sheet</h4>
+                    <p>Folha de personagem com poses, expressões e detalhes de design</p>
+                    <div class="project-tags-small">
+                        <span>CSP</span><span>Character</span><span>Design</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">🌸</div>
+                    <h4>Natureza Concept Art</h4>
+                    <p>Concept art de cenários naturais — florestas, cachoeiras e montanhas</p>
+                    <div class="project-tags-small">
+                        <span>Photoshop</span><span>Concept</span><span>Natureza</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">🎴</div>
+                    <h4>Chibis Persona Style</h4>
+                    <p>Coleção de personagens chibi com estética inspirada em Persona 4</p>
+                    <div class="project-tags-small">
+                        <span>CSP</span><span>Chibi</span><span>P4 Style</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dev -->
+        <div class="proj-category" id="cat-dev">
+            <div class="project-grid">
+                <div class="project-card">
                     <div class="project-preview">🌐</div>
                     <h4>Portfolio Interativo</h4>
-                    <p>Site portfólio com estética de desktop e elementos de RPG</p>
+                    <p>Site portfólio com estética de desktop OS e elementos de RPG</p>
                     <div class="project-tags-small">
-                        <span>HTML/CSS</span>
-                        <span>JavaScript</span>
-                        <span>Three.js</span>
+                        <span>HTML/CSS</span><span>JavaScript</span>
                     </div>
                 </div>
-
                 <div class="project-card">
-                    <div class="project-type">🎲 modelagem 3d</div>
-                    <div class="project-preview">🗡️</div>
-                    <h4>Props de Game</h4>
-                    <p>Coleção de props estilizados para jogos, espadas e itens mágicos</p>
+                    <div class="project-preview">🎮</div>
+                    <h4>Mini Jogo Unity</h4>
+                    <p>Protótipo de jogo 2D em Unity com estilo pixel art e mecânicas RPG</p>
                     <div class="project-tags-small">
-                        <span>Blender</span>
-                        <span>Texturing</span>
-                        <span>Game Art</span>
+                        <span>Unity</span><span>C#</span><span>Game Dev</span>
                     </div>
                 </div>
-
                 <div class="project-card">
-                    <div class="project-type">🎬 animação</div>
-                    <div class="project-preview">🌟</div>
-                    <h4>Motion Reel 2025</h4>
-                    <p>Compilação dos melhores trabalhos de animação do ano</p>
+                    <div class="project-preview">🤖</div>
+                    <h4>Bot Discord</h4>
+                    <p>Bot para servidor de Discord com comandos de moderação e diversão</p>
                     <div class="project-tags-small">
-                        <span>Premiere</span>
-                        <span>Blender</span>
-                        <span>AE</span>
+                        <span>Python</span><span>Discord.py</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">📊</div>
+                    <h4>App de Estudos</h4>
+                    <p>Aplicação web para organização de estudos com sistema de tarefas</p>
+                    <div class="project-tags-small">
+                        <span>React</span><span>JavaScript</span>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Editor de Vídeo -->
+        <div class="proj-category" id="cat-video">
+            <div class="project-grid">
+                <div class="project-card">
+                    <div class="project-preview">🎬</div>
+                    <h4>Showreel 2025</h4>
+                    <p>Compilação dos melhores trabalhos com cortes dinâmicos e trilha personalizada</p>
+                    <div class="project-tags-small">
+                        <span>Premiere</span><span>After Effects</span><span>Color</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">🎵</div>
+                    <h4>Lyric Video</h4>
+                    <p>Vídeo com animação de letras e motion graphics sincronizados à música</p>
+                    <div class="project-tags-small">
+                        <span>After Effects</span><span>Motion</span><span>Premiere</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">🏞️</div>
+                    <h4>Travel Edit</h4>
+                    <p>Edição cinematográfica de viagem com color grading e transições suaves</p>
+                    <div class="project-tags-small">
+                        <span>DaVinci</span><span>Color Grade</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-preview">🎙️</div>
+                    <h4>Podcast Edit</h4>
+                    <p>Edição de episódios de podcast com intro animada e cortes precisos</p>
+                    <div class="project-tags-small">
+                        <span>Premiere</span><span>Audio</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+</div>
 
-    <!-- LINKS WINDOW -->
-    <div class="window" id="links-window">
-        <div class="window-header" onmousedown="startDrag(event, 'links-window')">
-            <div class="window-title">🔗 links</div>
-            <div class="window-controls">
-                <button class="close-btn" onclick="closeWindow('links')">✕</button>
-            </div>
-        </div>
-        <div class="window-body">
-            <div class="links-grid">
-                <a class="link-item" href="https://twitter.com/SEU_USER" target="_blank">
-                    <span class="link-icon">🐦</span>
-                    <span>twitter</span>
-                </a>
-                <a class="link-item" href="https://instagram.com/SEU_USER" target="_blank">
-                    <span class="link-icon">📸</span>
-                    <span>instagram</span>
-                </a>
-                <a class="link-item" href="https://github.com/SEU_USER" target="_blank">
-                    <span class="link-icon">💻</span>
-                    <span>github</span>
-                </a>
-                <a class="link-item" href="https://artstation.com/SEU_USER" target="_blank">
-                    <span class="link-icon">🎨</span>
-                    <span>artstation</span>
-                </a>
-                <a class="link-item" href="https://behance.net/SEU_USER" target="_blank">
-                    <span class="link-icon">🅱️</span>
-                    <span>behance</span>
-                </a>
-                <a class="link-item" href="https://linkedin.com/in/SEU_USER" target="_blank">
-                    <span class="link-icon">💼</span>
-                    <span>linkedin</span>
-                </a>
-            </div>
-            <div class="links-note">
-                🌿 clicar nos links abrirá uma nova aba!
-            </div>
-        </div>
-    </div>
-
-    <!-- FAQ WINDOW -->
-    <div class="window" id="faq-window">
-        <div class="window-header" onmousedown="startDrag(event, 'faq-window')">
-            <div class="window-title">❓ perguntas frequentes</div>
-            <div class="window-controls">
-                <button class="close-btn" onclick="closeWindow('faq')">✕</button>
-            </div>
-        </div>
-        <div class="window-body">
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
-                    quais softwares você usa?
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    <p>Para 3D uso principalmente Blender e ZBrush. Para ilustração, Clip Studio Paint e Photoshop. Para animação, After Effects e Blender. Para programação, VS Code com várias stacks.</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
-                    você aceita freelas?
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    <p>Sim! Aceito trabalhos freelancer, contratos PJ e também estou aberto para propostas CLT. Entre em contato pelo email para discutirmos seu projeto! 🌿</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
-                    qual seu setup?
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    <p>Trabalho com [seu setup aqui - PC specs, tablet gráfica, etc.]. Customize com suas informações reais!</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
-                    posso usar sua arte como ícone?
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    <p>Para trabalhos pessoais/fan art, sim, desde que dê os créditos! Para trabalhos comerciais/commissions, entre em contato primeiro. 🎨</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
-                    quanto tempo leva um projeto?
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    <p>Depende da complexidade! Modelos simples: 1-3 dias. Ilustrações: 2-5 dias. Animações: 1-3 semanas. Projetos web: 2-4 semanas. Tudo depende do escopo!</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
-                    quais são suas inspirações?
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    <p>Zelda (toda a série!), Final Fantasy, Persona 4, Resident Evil 4, natureza, arte low poly, e cultura japonesa em geral. Amo estética de chibi também! ▲</p>
-                </div>
-            </div>
+<!-- LINKS -->
+<div class="window" id="links-window">
+    <div class="window-header" onmousedown="startDrag(event,'links-window')">
+        <div class="window-title">🔗 links</div>
+        <div class="window-controls">
+            <button class="close-btn" onclick="closeWindow('links')">✕</button>
         </div>
     </div>
-
-    <!-- CONTACT WINDOW -->
-    <div class="window" id="contact-window">
-        <div class="window-header" onmousedown="startDrag(event, 'contact-window')">
-            <div class="window-title">✉️ contato</div>
-            <div class="window-controls">
-                <button class="close-btn" onclick="closeWindow('contact')">✕</button>
-            </div>
+    <div class="window-body">
+        <div class="links-grid">
+            <a class="link-item" href="https://twitter.com/SEU_USER" target="_blank">
+                <span class="link-icon">🐦</span><span>twitter</span>
+            </a>
+            <a class="link-item" href="https://instagram.com/SEU_USER" target="_blank">
+                <span class="link-icon">📸</span><span>instagram</span>
+            </a>
+            <a class="link-item" href="https://github.com/SEU_USER" target="_blank">
+                <span class="link-icon">💻</span><span>github</span>
+            </a>
+            <a class="link-item" href="https://discord.com/users/SEU_ID" target="_blank">
+                <span class="link-icon">🎮</span><span>discord</span>
+            </a>
+            <a class="link-item" href="https://artstation.com/SEU_USER" target="_blank">
+                <span class="link-icon">🎨</span><span>artstation</span>
+            </a>
+            <a class="link-item" href="https://linkedin.com/in/SEU_USER" target="_blank">
+                <span class="link-icon">💼</span><span>linkedin</span>
+            </a>
         </div>
-        <div class="window-body">
-            <div class="contact-content">
-                <h3>vamos conversar! 🌿</h3>
-                <p>A melhor forma de falar comigo é por email!<br>
-                Respondo o mais rápido possível. ✨</p>
+        <div class="links-note">🌿 clicar nos links abrirá uma nova aba!</div>
+    </div>
+</div>
 
-                <div class="contact-chibi">🧙‍♂️</div>
-
-                <div class="contact-email">
-                    email: <a href="mailto:seuemail@email.com">seuemail@email.com</a>
-                </div>
-                <p style="font-size: 11px;">ou clique no botão abaixo para abrir seu app de email</p>
-
-                <a href="mailto:seuemail@email.com" class="contact-btn">enviar email!</a>
-
-                <div class="contact-methods">
-                    <a class="contact-method" href="https://twitter.com/SEU_USER" target="_blank">
-                        <span class="method-icon">🐦</span>
-                        <span>Twitter</span>
-                    </a>
-                    <a class="contact-method" href="https://instagram.com/SEU_USER" target="_blank">
-                        <span class="method-icon">📸</span>
-                        <span>Instagram</span>
-                    </a>
-                    <a class="contact-method" href="https://github.com/SEU_USER" target="_blank">
-                        <span class="method-icon">💻</span>
-                        <span>GitHub</span>
-                    </a>
-                </div>
-            </div>
+<!-- FAQ -->
+<div class="window" id="faq-window">
+    <div class="window-header" onmousedown="startDrag(event,'faq-window')">
+        <div class="window-title">❓ perguntas frequentes</div>
+        <div class="window-controls">
+            <button class="close-btn" onclick="closeWindow('faq')">✕</button>
         </div>
     </div>
+    <div class="window-body">
 
-    <!-- CHIBI MASCOT -->
-    <div class="chibi-mascot" onclick="chibiClick()" title="Clique em mim! ▲">
-        <svg class="chibi-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-            <!-- Simple chibi placeholder - replace with your own art! -->
-            <circle cx="40" cy="32" r="22" fill="#81C784" stroke="#4CAF50" stroke-width="2"/>
-            <circle cx="33" cy="28" r="3" fill="#1a1a1a"/>
-            <circle cx="47" cy="28" r="3" fill="#1a1a1a"/>
-            <circle cx="34" cy="27" r="1" fill="white"/>
-            <circle cx="48" cy="27" r="1" fill="white"/>
-            <path d="M36 36 Q40 40 44 36" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <!-- Pointed ears (zelda-like) -->
-            <path d="M18 24 L26 18 L24 28 Z" fill="#81C784" stroke="#4CAF50" stroke-width="1"/>
-            <path d="M62 24 L54 18 L56 28 Z" fill="#81C784" stroke="#4CAF50" stroke-width="1"/>
-            <!-- Hat -->
-            <path d="M22 22 Q40 -5 58 22" fill="#FFD700" stroke="#C5A200" stroke-width="1.5"/>
-            <!-- Body -->
-            <rect x="30" y="54" width="20" height="16" rx="6" fill="#4CAF50" stroke="#2E7D32" stroke-width="1.5"/>
-            <!-- Feet -->
-            <ellipse cx="34" cy="72" rx="6" ry="4" fill="#2E7D32"/>
-            <ellipse cx="46" cy="72" rx="6" ry="4" fill="#2E7D32"/>
-            <!-- Star -->
-            <text x="40" y="65" text-anchor="middle" font-size="8" fill="#FFD700">★</text>
-        </svg>
-    </div>
-
-    <!-- TASKBAR -->
-    <div class="taskbar">
-        <div class="taskbar-left">
-            <button class="start-btn" onclick="openWindow('home')">
-                <span class="triforce-icon"></span>
-                MENU
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+                quais softwares você usa? <span class="arrow">▼</span>
             </button>
-            <div class="taskbar-items" id="taskbarItems"></div>
-        </div>
-        <div class="taskbar-right">
-            <div class="taskbar-social">
-                <a href="https://twitter.com/SEU_USER" target="_blank" title="Twitter">🐦</a>
-                <a href="https://instagram.com/SEU_USER" target="_blank" title="Instagram">📸</a>
-                <a href="https://github.com/SEU_USER" target="_blank" title="GitHub">💻</a>
+            <div class="faq-answer">
+                <p>Para 3D uso principalmente Blender. Para ilustração, Clip Studio Paint e Photoshop. Para animação, After Effects e Blender. Para programação, VS Code com várias stacks. Para vídeo, Premiere Pro e DaVinci Resolve.</p>
             </div>
-            <div class="taskbar-clock" id="clock"></div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+                você aceita freelas? <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+                <p>Sim! Aceito trabalhos freelancer, contratos PJ e também estou aberto para propostas CLT. Entre em contato pelo Discord ou email para discutirmos seu projeto! 🌿</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+                posso usar sua arte como ícone? <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+                <p>Para uso pessoal/fan art, sim, desde que dê os créditos! Para uso comercial, entre em contato primeiro. 🎨</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+                quanto tempo leva um projeto? <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+                <p>Depende da complexidade! Modelos simples: 1-3 dias. Ilustrações: 2-5 dias. Projetos web: 2-4 semanas. Edição de vídeo: 3-7 dias. Tudo depende do escopo!</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+                quais são suas inspirações? <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+                <p>Zelda (toda a série!), Final Fantasy, Persona 4, Resident Evil 4, natureza, arte low poly e estética chibi. ▲</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- CONTACT -->
+<div class="window" id="contact-window">
+    <div class="window-header" onmousedown="startDrag(event,'contact-window')">
+        <div class="window-title">✉️ contato</div>
+        <div class="window-controls">
+            <button class="close-btn" onclick="closeWindow('contact')">✕</button>
         </div>
     </div>
+    <div class="window-body">
+        <div class="contact-content">
+            <h3>vamos conversar! 🌿</h3>
+            <p>Os melhores jeitos de me contatar são pelo<br>
+            <strong style="color:var(--p4-yellow)">Discord</strong> e pelo <strong style="color:var(--p4-yellow)">email</strong> — respondo rapidinho! ⚡</p>
 
-    <script>
-        // ===== LOADING SCREEN =====
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                triggerTVStatic();
-            }, 2500);
+            <div class="contact-chibi">🧙‍♂️</div>
+
+            <div class="contact-email">
+                email: <a href="mailto:seuemail@email.com">seuemail@email.com</a>
+            </div>
+            <div class="contact-email" style="margin-top:6px;">
+                discord: <a href="https://discord.com/users/SEU_ID" target="_blank" style="color:var(--p4-yellow);">Fuuji#0000</a>
+            </div>
+
+            <a href="mailto:seuemail@email.com" class="contact-btn">enviar email!</a>
+
+            <div class="contact-methods">
+                <a class="contact-method" href="https://discord.com/users/SEU_ID" target="_blank">
+                    <span class="method-icon">🎮</span><span>Discord</span>
+                </a>
+                <a class="contact-method" href="mailto:seuemail@email.com">
+                    <span class="method-icon">✉️</span><span>Email</span>
+                </a>
+                <a class="contact-method" href="https://twitter.com/SEU_USER" target="_blank">
+                    <span class="method-icon">🐦</span><span>Twitter</span>
+                </a>
+                <a class="contact-method" href="https://instagram.com/SEU_USER" target="_blank">
+                    <span class="method-icon">📸</span><span>Instagram</span>
+                </a>
+                <a class="contact-method" href="https://github.com/SEU_USER" target="_blank">
+                    <span class="method-icon">💻</span><span>GitHub</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHIBI MASCOT -->
+<div class="chibi-mascot" onclick="chibiClick()" title="Clique em mim! ▲">
+    <svg class="chibi-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="32" r="22" fill="#81C784" stroke="#4CAF50" stroke-width="2"/>
+        <circle cx="33" cy="28" r="3" fill="#1a1a1a"/>
+        <circle cx="47" cy="28" r="3" fill="#1a1a1a"/>
+        <circle cx="34" cy="27" r="1" fill="white"/>
+        <circle cx="48" cy="27" r="1" fill="white"/>
+        <path d="M36 36 Q40 40 44 36" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M18 24 L26 18 L24 28 Z" fill="#81C784" stroke="#4CAF50" stroke-width="1"/>
+        <path d="M62 24 L54 18 L56 28 Z" fill="#81C784" stroke="#4CAF50" stroke-width="1"/>
+        <path d="M22 22 Q40 -5 58 22" fill="#FFD700" stroke="#C5A200" stroke-width="1.5"/>
+        <rect x="30" y="54" width="20" height="16" rx="6" fill="#4CAF50" stroke="#2E7D32" stroke-width="1.5"/>
+        <ellipse cx="34" cy="72" rx="6" ry="4" fill="#2E7D32"/>
+        <ellipse cx="46" cy="72" rx="6" ry="4" fill="#2E7D32"/>
+        <text x="40" y="65" text-anchor="middle" font-size="8" fill="#FFD700">★</text>
+    </svg>
+</div>
+
+<!-- TASKBAR -->
+<div class="taskbar">
+    <div class="taskbar-left">
+        <button class="start-btn" onclick="toggleWindow('home')">▲ MENU</button>
+        <div class="taskbar-items" id="taskbarItems"></div>
+    </div>
+    <div class="taskbar-right">
+        <div class="taskbar-social">
+            <a href="https://twitter.com/SEU_USER" target="_blank" title="Twitter">🐦</a>
+            <a href="https://instagram.com/SEU_USER" target="_blank" title="Instagram">📸</a>
+            <a href="https://github.com/SEU_USER" target="_blank" title="GitHub">💻</a>
+            <a href="https://discord.com/users/SEU_ID" target="_blank" title="Discord">🎮</a>
+        </div>
+        <div class="taskbar-clock" id="clock"></div>
+    </div>
+</div>
+
+<script>
+// ===== LOADING =====
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('loadingScreen').classList.add('hidden');
+        triggerTVStatic();
+    }, 2600);
+});
+
+// ===== TV STATIC =====
+function triggerTVStatic() {
+    const tv = document.getElementById('tvStatic');
+    tv.classList.add('flash');
+    setTimeout(() => tv.classList.remove('flash'), 500);
+}
+
+// ===== STARS =====
+function generateStars() {
+    const layer = document.getElementById('starsLayer');
+    for (let i = 0; i < 120; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 100 + '%';
+        const sz = Math.random() * 2.2 + 0.8;
+        s.style.width = sz + 'px';
+        s.style.height = sz + 'px';
+        s.style.animationDelay = Math.random() * 4 + 's';
+        s.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        layer.appendChild(s);
+    }
+}
+generateStars();
+
+// ===== CLOCK =====
+function updateClock() {
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2,'0');
+    const m = now.getMinutes().toString().padStart(2,'0');
+    const d = now.getDate().toString().padStart(2,'0');
+    const mo = (now.getMonth()+1).toString().padStart(2,'0');
+    const y = now.getFullYear();
+    document.getElementById('clock').textContent = `${h}:${m}  ${d}/${mo}/${y}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ===== DAY / NIGHT TOGGLE =====
+let isDayMode = false;
+function toggleTheme() {
+    isDayMode = !isDayMode;
+    const btn = document.getElementById('themeToggle');
+    if (isDayMode) {
+        document.body.classList.add('day-mode');
+        btn.textContent = '🌙';
+        btn.title = 'Modo noite';
+    } else {
+        document.body.classList.remove('day-mode');
+        btn.textContent = '☀️';
+        btn.title = 'Modo dia';
+    }
+    triggerTVStatic();
+}
+
+// ===== WINDOW MANAGEMENT =====
+let zIndex = 100;
+let activeWindows = new Set(['home']);
+
+// Toggle: open if closed, close if open
+function toggleWindow(name) {
+    const win = document.getElementById(name + '-window');
+    if (!win) return;
+
+    if (win.classList.contains('visible')) {
+        closeWindow(name);
+    } else {
+        openWindow(name);
+    }
+}
+
+function openWindow(name) {
+    const win = document.getElementById(name + '-window');
+    if (!win) return;
+    triggerTVStatic();
+    win.classList.add('visible');
+    win.style.zIndex = ++zIndex;
+    activeWindows.add(name);
+    updateTaskbar();
+    updateIconState(name, true);
+
+    // Re-center contact window on open
+    if (name === 'contact') {
+        const rect = win.getBoundingClientRect();
+        win.style.left = (window.innerWidth / 2 - win.offsetWidth / 2) + 'px';
+        win.style.top = '100px';
+        win.style.transform = 'none';
+    }
+}
+
+function closeWindow(name) {
+    const win = document.getElementById(name + '-window');
+    if (!win) return;
+    win.classList.remove('visible');
+    activeWindows.delete(name);
+    updateTaskbar();
+    updateIconState(name, false);
+}
+
+function focusWindow(name) {
+    const win = document.getElementById(name + '-window');
+    if (win) win.style.zIndex = ++zIndex;
+}
+
+function updateIconState(name, active) {
+    const icon = document.getElementById('icon-' + name);
+    if (icon) {
+        if (active) icon.classList.add('active-icon');
+        else icon.classList.remove('active-icon');
+    }
+}
+
+// ===== TASKBAR =====
+const windowNames = {
+    home:'▲ Home', about:'📋 Sobre', skills:'⚔️ Skills',
+    projects:'📁 Projetos', links:'🔗 Links', faq:'❓ FAQ', contact:'✉️ Contato'
+};
+
+function updateTaskbar() {
+    const container = document.getElementById('taskbarItems');
+    container.innerHTML = '';
+    activeWindows.forEach(name => {
+        const item = document.createElement('div');
+        item.className = 'taskbar-item active';
+        item.textContent = windowNames[name] || name;
+        item.onclick = () => focusWindow(name);
+        container.appendChild(item);
+    });
+}
+updateTaskbar();
+
+// ===== DRAG =====
+let isDragging = false, dragTarget = null, dragOffX = 0, dragOffY = 0;
+
+function startDrag(e, winId) {
+    isDragging = true;
+    dragTarget = document.getElementById(winId);
+    const rect = dragTarget.getBoundingClientRect();
+    dragOffX = e.clientX - rect.left;
+    dragOffY = e.clientY - rect.top;
+    dragTarget.style.zIndex = ++zIndex;
+
+    if (dragTarget.style.transform && dragTarget.style.transform !== 'none') {
+        dragTarget.style.left = rect.left + 'px';
+        dragTarget.style.top = rect.top + 'px';
+        dragTarget.style.transform = 'none';
+    }
+    e.preventDefault();
+}
+
+document.addEventListener('mousemove', e => {
+    if (!isDragging || !dragTarget) return;
+    dragTarget.style.left = (e.clientX - dragOffX) + 'px';
+    dragTarget.style.top = (e.clientY - dragOffY) + 'px';
+    dragTarget.style.right = 'auto';
+    dragTarget.style.transform = 'none';
+});
+
+document.addEventListener('mouseup', () => { isDragging = false; dragTarget = null; });
+
+// ===== PROJECT TABS =====
+function switchCategory(cat, btn) {
+    document.querySelectorAll('.proj-category').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.proj-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('cat-' + cat).classList.add('active');
+    btn.classList.add('active');
+}
+
+// ===== FAQ =====
+function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains('open');
+    document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+    document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('open'));
+    if (!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+}
+
+// ===== CHIBI =====
+let chibiClicks = 0;
+function chibiClick() {
+    chibiClicks++;
+    if (chibiClicks >= 5) {
+        triggerTVStatic();
+        alert('🌟 Easter egg encontrado! ▲\n"A coragem de Kaique/Fuuji está aqui!"');
+        chibiClicks = 0;
+    }
+}
+
+// ===== ESC KEY =====
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        let topW = null, topZ = 0;
+        document.querySelectorAll('.window.visible').forEach(w => {
+            const z = parseInt(w.style.zIndex || 0);
+            if (z > topZ) { topZ = z; topW = w; }
         });
+        if (topW) closeWindow(topW.id.replace('-window',''));
+    }
+});
 
-        // ===== TV STATIC EFFECT =====
-        function triggerTVStatic() {
-            const tv = document.getElementById('tvStatic');
-            tv.classList.add('flash');
-            setTimeout(() => tv.classList.remove('flash'), 500);
-        }
-
-        // ===== GENERATE STARS =====
-        function generateStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                const size = Math.random() * 2 + 1;
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                starsContainer.appendChild(star);
-            }
-        }
-        generateStars();
-
-        // ===== CLOCK =====
-        function updateClock() {
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const day = now.getDate().toString().padStart(2, '0');
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const year = now.getFullYear();
-            document.getElementById('clock').textContent = `${hours}:${minutes} ${day}/${month}/${year}`;
-        }
-        updateClock();
-        setInterval(updateClock, 1000);
-
-        // ===== WINDOW MANAGEMENT =====
-        let zIndex = 100;
-        let activeWindows = new Set(['home']);
-
-        function openWindow(name) {
-            const win = document.getElementById(name + '-window');
-            if (win) {
-                triggerTVStatic();
-                win.classList.add('visible');
-                win.style.zIndex = ++zIndex;
-                activeWindows.add(name);
-                updateTaskbar();
-            }
-        }
-
-        function closeWindow(name) {
-            const win = document.getElementById(name + '-window');
-            if (win) {
-                win.classList.remove('visible');
-                activeWindows.delete(name);
-                updateTaskbar();
-            }
-        }
-
-        function focusWindow(name) {
-            const win = document.getElementById(name + '-window');
-            if (win) {
-                win.style.zIndex = ++zIndex;
-            }
-        }
-
-        // ===== TASKBAR =====
-        function updateTaskbar() {
-            const container = document.getElementById('taskbarItems');
-            container.innerHTML = '';
-            const names = {
-                home: '🏠 Home',
-                about: '📋 Sobre',
-                skills: '⚔️ Skills',
-                projects: '📁 Projetos',
-                links: '🔗 Links',
-                faq: '❓ FAQ',
-                contact: '✉️ Contato'
-            };
-            activeWindows.forEach(name => {
-                const item = document.createElement('div');
-                item.className = 'taskbar-item active';
-                item.textContent = names[name] || name;
-                item.onclick = () => focusWindow(name);
-                container.appendChild(item);
-            });
-        }
-        updateTaskbar();
-
-        // ===== DRAG WINDOWS =====
-        let isDragging = false;
-        let dragTarget = null;
-        let dragOffsetX = 0;
-        let dragOffsetY = 0;
-
-        function startDrag(e, windowId) {
-            isDragging = true;
-            dragTarget = document.getElementById(windowId);
-            const rect = dragTarget.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-            dragTarget.style.zIndex = ++zIndex;
-
-            // Reset transform for proper positioning
-            if (dragTarget.style.transform) {
-                dragTarget.style.left = rect.left + 'px';
-                dragTarget.style.top = rect.top + 'px';
-                dragTarget.style.transform = 'none';
-            }
-
-            e.preventDefault();
-        }
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging && dragTarget) {
-                const x = e.clientX - dragOffsetX;
-                const y = e.clientY - dragOffsetY;
-                dragTarget.style.left = x + 'px';
-                dragTarget.style.top = y + 'px';
-                dragTarget.style.right = 'auto';
-                dragTarget.style.transform = 'none';
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            dragTarget = null;
-        });
-
-        // ===== FAQ TOGGLE =====
-        function toggleFaq(btn) {
-            const answer = btn.nextElementSibling;
-            const isOpen = answer.classList.contains('open');
-
-            // Close all
-            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
-            document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('open'));
-
-            if (!isOpen) {
-                answer.classList.add('open');
-                btn.classList.add('open');
-            }
-        }
-
-        // ===== CHIBI INTERACTION =====
-        let chibiClickCount = 0;
-        function chibiClick() {
-            chibiClickCount++;
-            const mascot = document.querySelector('.chibi-mascot');
-            mascot.style.animation = 'none';
-            mascot.offsetHeight; // trigger reflow
-            mascot.style.animation = 'chibiFloat 3s ease-in-out infinite';
-
-            // Easter egg: after 5 clicks
-            if (chibiClickCount === 5) {
-                triggerTVStatic();
-                alert('🌟 Você encontrou o easter egg! ▲ A coragem está dentro de você!');
-                chibiClickCount = 0;
-            }
-        }
-
-        // ===== KEYBOARD SHORTCUTS =====
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                // Close the topmost window
-                const windows = document.querySelectorAll('.window.visible');
-                let topWindow = null;
-                let topZ = 0;
-                windows.forEach(w => {
-                    const z = parseInt(w.style.zIndex || 0);
-                    if (z > topZ) {
-                        topZ = z;
-                        topWindow = w;
-                    }
-                });
-                if (topWindow) {
-                    const name = topWindow.id.replace('-window', '');
-                    closeWindow(name);
-                }
-            }
-        });
-
-        // Initial position adjustments
-        setTimeout(() => {
-            const homeWin = document.getElementById('home-window');
-            const rect = homeWin.getBoundingClientRect();
-            homeWin.style.left = (window.innerWidth / 2 - rect.width / 2) + 'px';
-            homeWin.style.top = (window.innerHeight / 2 - rect.height / 2 - 30) + 'px';
-            homeWin.style.transform = 'none';
-        }, 100);
-    </script>
+// ===== INITIAL POSITION =====
+setTimeout(() => {
+    const homeWin = document.getElementById('home-window');
+    homeWin.style.left = (window.innerWidth / 2 - homeWin.offsetWidth / 2) + 'px';
+    homeWin.style.top = (window.innerHeight / 2 - homeWin.offsetHeight / 2 - 24) + 'px';
+    homeWin.style.transform = 'none';
+    updateIconState('home', true);
+}, 120);
+</script>
 </body>
 </html>
